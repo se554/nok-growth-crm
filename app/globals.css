@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Paleta NOK extraída de nok.rent */
+  --nok-bg:           #f7f7f3;
+  --nok-black:        #1d1d1b;
+  --nok-green-dark:   #0b2922;
+  --nok-green:        #193125;
+  --nok-gold:         #d6a700;
+  --nok-earth:        #833b0e;
+  --nok-gray:         #6c6c6c;
+  --nok-border:       #d4d4d4;
+
+  --background: var(--nok-bg);
+  --foreground: var(--nok-black);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar sutil estilo NOK */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d6a700;
+}
+
+/* Transición NOK — springy */
+.transition-nok {
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Botón primario NOK */
+.btn-nok-primary {
+  background-color: var(--nok-earth);
+  color: white;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border: none;
+  cursor: pointer;
+}
+.btn-nok-primary:hover {
+  background-color: var(--nok-gold);
+  color: var(--nok-black);
+  transform: translateY(-1px);
+}
