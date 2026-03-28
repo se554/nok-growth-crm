@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
   const dias_min = searchParams.get('dias_sin_contacto_min')
   const limit = parseInt(searchParams.get('limit') ?? '1000')
 
+  // Usamos la tabla leads directamente para evitar duplicados del view
   let query = supabaseAdmin
-    .from('leads_con_actividad')
+    .from('leads')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -21,11 +22,25 @@ export async function GET(req: NextRequest) {
   if (zona) query = query.ilike('zona', `%${zona}%`)
   if (pais) query = query.ilike('pais', `%${pais}%`)
   if (proyecto) query = query.ilike('proyecto', `%${proyecto}%`)
-  if (dias_min) query = query.gte('dias_sin_contacto', parseInt(dias_min))
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+
+  // Calcular dias_sin_contacto en JS
+  const now = Date.now()
+  const leads = (data ?? []).map(l => ({
+    ...l,
+    dias_sin_contacto: l.fecha_ultimo_contacto
+      ? Math.floor((now - new Date(l.fecha_ultimo_contacto).getTime()) / 86400000)
+      : Math.floor((now - new Date(l.created_at).getTime()) / 86400000),
+    ultimo_evento: null,
+  }))
+
+  const filtered = dias_min
+    ? leads.filter(l => l.dias_sin_contacto >= parseInt(dias_min))
+    : leads
+
+  return NextResponse.json(filtered)
 }
 
 // POST /api/leads — crear nuevo lead

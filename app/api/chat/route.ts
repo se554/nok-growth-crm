@@ -178,30 +178,32 @@ export async function POST(req: NextRequest) {
           })
 
           // Procesar bloques de respuesta
+          const toolLabels: Record<string, string> = {
+            get_leads: 'Consultando pipeline...',
+            get_lead_detail: 'Buscando lead...',
+            update_lead_estado: 'Actualizando estado...',
+            agregar_evento: 'Registrando evento...',
+            get_analytics: 'Calculando métricas...',
+          }
+
+          const toolResults: Anthropic.ToolResultBlockParam[] = []
+          let hasToolUse = false
+
           for (const block of response.content) {
             if (block.type === 'text') {
               send({ type: 'text', text: block.text })
             } else if (block.type === 'tool_use') {
-              // Mostrar indicador de tool
-              const toolLabels: Record<string, string> = {
-                get_leads: 'Consultando pipeline...',
-                get_lead_detail: 'Buscando lead...',
-                update_lead_estado: 'Actualizando estado...',
-                agregar_evento: 'Registrando evento...',
-                get_analytics: 'Calculando métricas...',
-              }
+              hasToolUse = true
               send({ type: 'tool_use', label: toolLabels[block.name] || 'Procesando...' })
-
-              // Ejecutar la tool
               const toolResult = await executeTool(block.name, block.input as Record<string, unknown>)
-
-              // Agregar resultado al historial
-              apiMessages.push({ role: 'assistant', content: response.content })
-              apiMessages.push({
-                role: 'user',
-                content: [{ type: 'tool_result', tool_use_id: block.id, content: toolResult }],
-              })
+              toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: toolResult })
             }
+          }
+
+          // Agregar assistant + tool results UNA sola vez fuera del loop
+          if (hasToolUse) {
+            apiMessages.push({ role: 'assistant', content: response.content })
+            apiMessages.push({ role: 'user', content: toolResults })
           }
 
           // Continuar si hay tool_use, terminar si stop_reason es end_turn

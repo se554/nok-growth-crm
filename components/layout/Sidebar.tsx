@@ -44,12 +44,11 @@ export default function Sidebar() {
 
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/10">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/nok-logo-white.svg"
-          alt="NOK Property Management"
-          width={110}
-          height={48}
-          priority
+          alt="NOK"
+          style={{ width: '160px', height: 'auto' }}
         />
         <p className="text-[9px] font-semibold tracking-[0.2em] uppercase mt-2"
           style={{ color: '#d6a700' }}>
