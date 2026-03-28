@@ -28,6 +28,7 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }:
   const [leads, setLeads] = useState<LeadConActividad[]>([])
   const [loading, setLoading] = useState(true)
   const [activeLead, setActiveLead] = useState<LeadConActividad | null>(null)
+  const isDragging = activeLead !== null
 
   const fetchLeads = useCallback(async () => {
     const params = new URLSearchParams()
@@ -37,7 +38,11 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }:
     const res = await fetch(`/api/leads${qs ? '?' + qs : ''}`)
     if (res.ok) {
       const data = await res.json()
-      setLeads(data)
+      // Deduplicar por id por si acaso
+      const unique: LeadConActividad[] = Array.from(
+        new Map((data as LeadConActividad[]).map((l) => [l.id, l])).values()
+      )
+      setLeads(unique)
     }
     setLoading(false)
   }, [filterPais, filterProyecto])
@@ -46,17 +51,17 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }:
     fetchLeads()
   }, [fetchLeads, filterPais, filterProyecto])
 
-  // Supabase Realtime
+  // Supabase Realtime — no refrescar mientras hay un drag activo
   useEffect(() => {
     const channel = supabase
       .channel('leads-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => {
-        fetchLeads()
+        if (!isDragging) fetchLeads()
       })
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [fetchLeads])
+  }, [fetchLeads, isDragging])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -119,6 +124,8 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }:
         nota: `Movido de ${originalLead.estado} a ${lead.estado} via Kanban`,
       }),
     })
+    // Refrescar desde DB para confirmar estado real
+    fetchLeads()
   }
 
   if (loading) {
