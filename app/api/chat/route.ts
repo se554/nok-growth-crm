@@ -7,25 +7,36 @@ import type { ChatMessage } from '@/lib/types'
 async function executeTool(name: string, input: Record<string, unknown>): Promise<string> {
   switch (name) {
     case 'get_leads': {
+      // Usar tabla leads directamente para evitar duplicados del view
+      const now = Date.now()
       let query = supabaseAdmin
-        .from('leads_con_actividad')
+        .from('leads')
         .select('*')
-        .order('dias_sin_contacto', { ascending: false })
+        .order('fecha_ultimo_contacto', { ascending: false, nullsFirst: false })
         .limit((input.limit as number) ?? 20)
 
       if (input.estado) query = query.eq('estado', input.estado)
       if (input.zona) query = query.ilike('zona', `%${input.zona}%`)
       if (input.pais) query = query.ilike('pais', `%${input.pais}%`)
       if (input.proyecto) query = query.ilike('proyecto', `%${input.proyecto}%`)
-      if (input.dias_sin_contacto_min)
-        query = query.gte('dias_sin_contacto', input.dias_sin_contacto_min)
 
       const { data, error } = await query
       if (error) return `Error: ${error.message}`
       if (!data?.length) return 'No se encontraron leads con esos filtros.'
 
+      const leads = data.map((l) => ({
+        ...l,
+        dias_sin_contacto: l.fecha_ultimo_contacto
+          ? Math.floor((now - new Date(l.fecha_ultimo_contacto).getTime()) / 86400000)
+          : Math.floor((now - new Date(l.created_at).getTime()) / 86400000),
+      }))
+
+      const filtered = input.dias_sin_contacto_min
+        ? leads.filter((l) => l.dias_sin_contacto >= (input.dias_sin_contacto_min as number))
+        : leads
+
       return JSON.stringify(
-        data.map((l) => ({
+        filtered.map((l) => ({
           nombre: l.nombre,
           propiedad: l.propiedad,
           proyecto: l.proyecto,
@@ -35,7 +46,6 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
           estado: l.estado,
           valor: l.valor_mensual_estimado,
           dias_sin_contacto: l.dias_sin_contacto,
-          ultimo_evento: l.ultimo_evento,
           probabilidad: l.probabilidad,
           prioridad: l.prioridad,
           pendientes: l.pendientes,
@@ -45,7 +55,7 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
 
     case 'get_lead_detail': {
       const { data: leads } = await supabaseAdmin
-        .from('leads_con_actividad')
+        .from('leads')
         .select('*')
         .or(`nombre.ilike.%${input.nombre}%,propiedad.ilike.%${input.nombre}%`)
         .limit(1)
@@ -123,22 +133,31 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
     }
 
     case 'get_analytics': {
-      const { data: leads } = await supabaseAdmin.from('leads_con_actividad').select('*')
+      // Usar tabla leads directamente para evitar duplicados del view
+      const { data: leads } = await supabaseAdmin.from('leads').select('*')
       if (!leads) return 'Error obteniendo métricas.'
 
-      const activos = leads.filter((l) => l.estado !== 'perdido')
-      const porEstado = ['prospecto', 'contactado', 'propuesta', 'negociacion', 'ganado', 'perdido'].map(
-        (e) => ({
-          estado: e,
-          count: leads.filter((l) => l.estado === e).length,
-          valor: leads.filter((l) => l.estado === e).reduce((s, l) => s + (l.valor_mensual_estimado ?? 0), 0),
-        })
-      )
+      const now = Date.now()
+      const leadsConDias = leads.map((l) => ({
+        ...l,
+        dias_sin_contacto: l.fecha_ultimo_contacto
+          ? Math.floor((now - new Date(l.fecha_ultimo_contacto).getTime()) / 86400000)
+          : Math.floor((now - new Date(l.created_at).getTime()) / 86400000),
+      }))
+
+      const ESTADOS = ['prospecto','pendiente_contacto','contactado','pendiente_respuesta','en_espera','pendiente_reunion','cotizacion','comprometido','cerrado','perdido']
+      const activos = leadsConDias.filter((l) => l.estado !== 'perdido')
+      const porEstado = ESTADOS.map((e) => ({
+        estado: e,
+        count: leads.filter((l) => l.estado === e).length,
+        valor: leads.filter((l) => l.estado === e).reduce((s, l) => s + (l.valor_mensual_estimado ?? 0), 0),
+      })).filter((e) => e.count > 0)
 
       return JSON.stringify({
+        total_leads: leads.length,
         total_activos: activos.length,
         valor_pipeline: activos.reduce((s, l) => s + (l.valor_mensual_estimado ?? 0), 0),
-        leads_sin_contacto_7d: activos.filter((l) => (l.dias_sin_contacto ?? 0) >= 7).length,
+        leads_sin_contacto_7d: activos.filter((l) => l.dias_sin_contacto >= 7).length,
         por_estado: porEstado,
       })
     }
