@@ -1,10 +1,5 @@
 export type Estado =
   | 'prospecto'
-  | 'pendiente_contacto'
-  | 'contactado'
-  | 'pendiente_respuesta'
-  | 'en_espera'
-  | 'pendiente_reunion'
   | 'cotizacion'
   | 'comprometido'
   | 'cerrado'
@@ -124,20 +119,20 @@ export const TIPOLOGIA_LABELS: Record<Tipologia, string> = {
 }
 
 export const ESTADO_STYLES: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  prospecto:           { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'          },
-  pendiente_contacto:  { bg: 'bg-orange-50',   text: 'text-orange-700',  border: 'border-orange-200',  label: 'Pendiente Contacto' },
-  contactado:          { bg: 'bg-blue-50',     text: 'text-blue-700',    border: 'border-blue-200',    label: 'Contactado'         },
-  pendiente_respuesta: { bg: 'bg-sky-50',      text: 'text-sky-700',     border: 'border-sky-200',     label: 'Pendiente Respuesta'},
-  en_espera:           { bg: 'bg-slate-50',    text: 'text-slate-600',   border: 'border-slate-200',   label: 'En Espera'          },
-  pendiente_reunion:   { bg: 'bg-violet-50',   text: 'text-violet-700',  border: 'border-violet-200',  label: 'Pendiente Reunión'  },
-  cotizacion:          { bg: 'bg-purple-50',   text: 'text-purple-700',  border: 'border-purple-200',  label: 'Cotización'         },
-  comprometido:        { bg: 'bg-amber-50',    text: 'text-amber-700',   border: 'border-amber-200',   label: 'Comprometido'       },
-  cerrado:             { bg: 'bg-green-50',    text: 'text-green-700',   border: 'border-green-300',   label: 'Cerrado'            },
-  perdido:             { bg: 'bg-red-50',      text: 'text-red-600',     border: 'border-red-200',     label: 'Perdido'            },
+  prospecto:           { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'    },
+  cotizacion:          { bg: 'bg-purple-50',   text: 'text-purple-700',  border: 'border-purple-200',  label: 'Cotización'   },
+  comprometido:        { bg: 'bg-amber-50',    text: 'text-amber-700',   border: 'border-amber-200',   label: 'Comprometido' },
+  cerrado:             { bg: 'bg-green-50',    text: 'text-green-700',   border: 'border-green-300',   label: 'Cerrado'      },
+  perdido:             { bg: 'bg-red-50',      text: 'text-red-600',     border: 'border-red-200',     label: 'Perdido'      },
   // Fallbacks para estados legacy en la DB
-  propuesta:           { bg: 'bg-purple-50',   text: 'text-purple-700',  border: 'border-purple-200',  label: 'Cotización'         },
-  negociacion:         { bg: 'bg-amber-50',    text: 'text-amber-700',   border: 'border-amber-200',   label: 'Comprometido'       },
-  ganado:              { bg: 'bg-green-50',    text: 'text-green-700',   border: 'border-green-300',   label: 'Cerrado'            },
+  pendiente_contacto:  { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'    },
+  contactado:          { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'    },
+  pendiente_respuesta: { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'    },
+  en_espera:           { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'    },
+  pendiente_reunion:   { bg: 'bg-purple-50',   text: 'text-purple-700',  border: 'border-purple-200',  label: 'Cotización'   },
+  propuesta:           { bg: 'bg-purple-50',   text: 'text-purple-700',  border: 'border-purple-200',  label: 'Cotización'   },
+  negociacion:         { bg: 'bg-amber-50',    text: 'text-amber-700',   border: 'border-amber-200',   label: 'Comprometido' },
+  ganado:              { bg: 'bg-green-50',    text: 'text-green-700',   border: 'border-green-300',   label: 'Cerrado'      },
 }
 
 // Helper seguro para obtener el estilo de un estado (nunca crashea)
@@ -147,11 +142,6 @@ export function getEstadoStyle(estado: string) {
 
 export const ESTADOS_ORDEN: Estado[] = [
   'prospecto',
-  'pendiente_contacto',
-  'contactado',
-  'pendiente_respuesta',
-  'en_espera',
-  'pendiente_reunion',
   'cotizacion',
   'comprometido',
   'cerrado',
