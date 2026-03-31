@@ -6,7 +6,8 @@ import { RefreshCw, Clock } from 'lucide-react'
 import { format, isToday, isPast, isThisWeek, isFuture } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { clsx } from 'clsx'
-import { ESTADO_STYLES } from '@/lib/types'
+import { ESTADO_STYLES, ESTADOS_ORDEN } from '@/lib/types'
+import type { Estado } from '@/lib/types'
 
 interface Tarea {
   id: string
@@ -93,6 +94,7 @@ export default function TareasPage() {
   const router = useRouter()
   const [tareas, setTareas] = useState<Tarea[]>([])
   const [loading, setLoading] = useState(true)
+  const [filterEstado, setFilterEstado] = useState<Estado | ''>('')
 
   const cargar = useCallback(() => {
     fetch('/api/tareas')
@@ -102,9 +104,11 @@ export default function TareasPage() {
 
   useEffect(() => { cargar() }, [cargar])
 
+  const filtered = filterEstado ? tareas.filter(t => t.lead_estado === filterEstado) : tareas
+
   const grouped = GRUPOS.map(g => ({
     ...g,
-    items: tareas.filter(t => clasificar(t) === g.key),
+    items: filtered.filter(t => clasificar(t) === g.key),
   })).filter(g => g.items.length > 0)
 
   const totalPendientes = tareas.filter(t => {
@@ -112,14 +116,21 @@ export default function TareasPage() {
     return g === 'vencida' || g === 'hoy'
   }).length
 
+  // Conteo por estado para los botones de filtro
+  const countByEstado = ESTADOS_ORDEN.reduce((acc, e) => {
+    acc[e] = tareas.filter(t => t.lead_estado === e).length
+    return acc
+  }, {} as Record<string, number>)
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[18px] font-semibold text-[#1A1A1A]">Tareas</h1>
           <p className="text-[12px] text-[#6B6B6B]">
-            {tareas.length} tarea{tareas.length !== 1 ? 's' : ''} en total
-            {totalPendientes > 0 && (
+            {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
+            {filterEstado ? ` en ${ESTADO_STYLES[filterEstado]?.label}` : ` en total`}
+            {totalPendientes > 0 && !filterEstado && (
               <span className="ml-2 text-red-500 font-medium">· {totalPendientes} urgente{totalPendientes !== 1 ? 's' : ''}</span>
             )}
           </p>
@@ -128,6 +139,37 @@ export default function TareasPage() {
           className="p-1.5 text-[#6B6B6B] hover:text-[#C9A84C] border border-[#E8E6E0] rounded-lg hover:bg-[#F5F3EE] transition-all">
           <RefreshCw size={14} />
         </button>
+      </div>
+
+      {/* Filtros por estado */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilterEstado('')}
+          className={clsx(
+            'text-[12px] px-3 py-1.5 rounded-full border transition-all',
+            filterEstado === ''
+              ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
+              : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#1A1A1A]'
+          )}
+        >
+          Todos · {tareas.length}
+        </button>
+        {ESTADOS_ORDEN.filter(e => countByEstado[e] > 0).map(e => {
+          const s = ESTADO_STYLES[e]
+          const active = filterEstado === e
+          return (
+            <button
+              key={e}
+              onClick={() => setFilterEstado(e)}
+              className={clsx(
+                'text-[12px] px-3 py-1.5 rounded-full border transition-all',
+                active ? `${s.bg} ${s.text} ${s.border} font-medium` : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#C9A84C]'
+              )}
+            >
+              {s.label} · {countByEstado[e]}
+            </button>
+          )
+        })}
       </div>
 
       {loading ? (
@@ -140,9 +182,9 @@ export default function TareasPage() {
             </div>
           ))}
         </div>
-      ) : tareas.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-[13px] text-[#6B6B6B]">
-          No hay tareas registradas.
+          {filterEstado ? `No hay tareas en estado ${ESTADO_STYLES[filterEstado]?.label}.` : 'No hay tareas registradas.'}
         </div>
       ) : (
         <div className="space-y-8">
