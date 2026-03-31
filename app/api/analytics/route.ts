@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-const ESTADOS_ACTIVOS = ['prospecto','pendiente_contacto','contactado','pendiente_respuesta','en_espera','pendiente_reunion','cotizacion','comprometido']
-const ESTADOS_TODOS = [...ESTADOS_ACTIVOS, 'cerrado', 'perdido']
+// Estados canónicos actuales
+const ESTADOS_ACTIVOS = ['prospecto', 'cotizacion', 'comprometido']
+const ESTADOS_TODOS = ['prospecto', 'cotizacion', 'comprometido', 'cerrado', 'perdido']
+
+// Normalizar estados legacy al canónico correspondiente
+function normalizar(estado: string): string {
+  const map: Record<string, string> = {
+    pendiente_contacto:  'prospecto',
+    contactado:          'prospecto',
+    pendiente_respuesta: 'prospecto',
+    en_espera:           'prospecto',
+    pendiente_reunion:   'cotizacion',
+    propuesta:           'cotizacion',
+    negociacion:         'comprometido',
+    ganado:              'cerrado',
+  }
+  return map[estado] ?? estado
+}
 
 export async function GET() {
   const [leadsRes, eventosRes, cerradosMesRes] = await Promise.all([
@@ -26,6 +42,7 @@ export async function GET() {
   const now = Date.now()
   const leads = leadsRaw.map(l => ({
     ...l,
+    estado: normalizar(l.estado),
     dias_sin_contacto: l.fecha_ultimo_contacto
       ? Math.floor((now - new Date(l.fecha_ultimo_contacto).getTime()) / 86400000)
       : Math.floor((now - new Date(l.created_at).getTime()) / 86400000),
@@ -140,7 +157,7 @@ export async function GET() {
       const dias = (new Date(ev.fecha).getTime() - fechaEntrada) / 86400000
       if (!diasPorEstado[estadoActual]) diasPorEstado[estadoActual] = []
       diasPorEstado[estadoActual].push(Math.max(0, dias))
-      estadoActual = ev.estado_nuevo ?? estadoActual
+      estadoActual = normalizar(ev.estado_nuevo ?? estadoActual)
       fechaEntrada = new Date(ev.fecha).getTime()
     }
     const diasActual = (Date.now() - fechaEntrada) / 86400000
