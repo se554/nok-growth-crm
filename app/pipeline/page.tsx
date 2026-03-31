@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Plus, Globe, FolderOpen } from 'lucide-react'
 import type { LeadConActividad, PipelineMetrics } from '@/lib/types'
@@ -30,7 +30,7 @@ function MetricCard({
   )
 }
 
-export default function PipelinePage() {
+function PipelinePageInner() {
   const [selectedLead, setSelectedLead] = useState<LeadConActividad | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [metrics, setMetrics] = useState<PipelineMetrics | null>(null)
@@ -158,5 +158,13 @@ export default function PipelinePage() {
         />
       )}
     </div>
+  )
+}
+
+export default function PipelinePage() {
+  return (
+    <Suspense>
+      <PipelinePageInner />
+    </Suspense>
   )
 }
