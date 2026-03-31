@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { X, Phone, Mail, MessageCircle, ChevronRight, Building2, Pencil } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { X, Phone, Mail, MessageCircle, ChevronRight, Building2, Pencil, Paperclip, Upload } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { LeadConActividad, LeadDetalle, Estado } from '@/lib/types'
 import { ESTADO_STYLES, ESTADOS_ORDEN, TIPO_PROPIEDAD_LABELS, TIPOLOGIA_LABELS, ZONAS } from '@/lib/types'
@@ -39,6 +39,7 @@ interface FormState {
   fuente: string
   prioridad: string
   ejecucion_nok: boolean
+  presupuesto_aprobado: string
 }
 
 function getInitials(nombre: string) {
@@ -72,6 +73,7 @@ function buildForm(data: any): FormState {
     fuente: data.fuente ?? 'otro',
     prioridad: data.prioridad ?? 'na',
     ejecucion_nok: data.ejecucion_nok ?? false,
+    presupuesto_aprobado: data.presupuesto_aprobado ? String(data.presupuesto_aprobado) : '',
   }
 }
 
@@ -107,6 +109,8 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormState>(buildForm(lead))
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const setF = (field: keyof FormState, value: string | boolean) =>
     setForm(prev => ({ ...prev, [field]: value }))
@@ -175,6 +179,7 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
         fuente: form.fuente,
         prioridad: form.prioridad || 'na',
         ejecucion_nok: form.ejecucion_nok,
+        presupuesto_aprobado: form.presupuesto_aprobado ? parseFloat(form.presupuesto_aprobado) : null,
       }),
     })
     setSaving(false)
@@ -186,6 +191,15 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
   const cancelar = () => {
     fetchDetalle()
     setEditing(false)
+  }
+
+  const uploadDocumento = async (file: File) => {
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    await fetch(`/api/leads/${lead.id}/documentos`, { method: 'POST', body: fd })
+    setUploading(false)
+    fetchDetalle()
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -295,6 +309,34 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
               <div className="bg-[#F5F3EE] rounded-xl p-4">
                 <p className="text-[12px] font-medium text-[#1A1A1A] mb-3">Registrar actividad</p>
                 <EventoForm leadId={lead.id} onEventoAdded={fetchDetalle} />
+              </div>
+
+              {/* Adjuntar documento */}
+              <div className="bg-[#F5F3EE] rounded-xl p-4">
+                <p className="text-[12px] font-medium text-[#1A1A1A] mb-2">Adjuntar contrato / documento</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) uploadDocumento(file)
+                    e.target.value = ''
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex items-center gap-2 text-[12px] text-[#6B6B6B] border border-dashed border-[#C9A84C]/50 hover:border-[#C9A84C] hover:text-[#C9A84C] bg-white rounded-xl px-4 py-3 w-full transition-all disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <><Upload size={13} className="animate-bounce" /> Subiendo...</>
+                  ) : (
+                    <><Paperclip size={13} /> Seleccionar archivo (PDF, DOC, imagen)</>
+                  )}
+                </button>
               </div>
               {loading ? (
                 <div className="space-y-3">
@@ -472,6 +514,10 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                       <input type="number" min="0" max="100" className={inp} value={form.probabilidad}
                         onChange={e => setF('probabilidad', e.target.value)} />
                     </EF>
+                    <EF label="Presupuesto aprobado ($)">
+                      <input type="number" className={inp} value={form.presupuesto_aprobado}
+                        onChange={e => setF('presupuesto_aprobado', e.target.value)} />
+                    </EF>
                     <EF label="Fuente del lead">
                       <select className={inp} value={form.fuente} onChange={e => setF('fuente', e.target.value)}>
                         {['referido','instagram','web','llamada','whatsapp','otro'].map(f => (
@@ -524,6 +570,7 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                     { label: 'País', value: d.pais },
                     { label: 'Número de unidades', value: String(d.numero_unidades) },
                     { label: 'Valor mensual estimado', value: d.valor_mensual_estimado ? `$${d.valor_mensual_estimado.toLocaleString()}` : null, highlight: true },
+                    { label: 'Presupuesto aprobado', value: d.presupuesto_aprobado ? `$${d.presupuesto_aprobado.toLocaleString()}` : null, highlight: true },
                     { label: 'Probabilidad de cierre', value: `${d.probabilidad}%` },
                     { label: 'Fuente del lead', value: d.fuente },
                     { label: 'Días sin contacto', value: `${lead.dias_sin_contacto ?? 0} días` },

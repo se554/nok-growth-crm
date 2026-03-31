@@ -8,7 +8,7 @@ export type Estado =
 export type Fuente = 'referido' | 'instagram' | 'web' | 'llamada' | 'whatsapp' | 'otro'
 export type TipoEvento =
   | 'llamada' | 'whatsapp' | 'email' | 'reunion' | 'propuesta_enviada'
-  | 'contrato' | 'nota' | 'estado_cambiado' | 'creacion' | 'tarea'
+  | 'contrato' | 'nota' | 'estado_cambiado' | 'creacion' | 'tarea' | 'documento_adjunto'
 export type TipoPropiedad = 'apartamento' | 'villa' | 'penthouse' | 'local_comercial' | 'casa' | 'otro'
 export type Tipologia = 'studio' | '1_hab' | '2_hab' | '3_hab' | '4_hab_plus' | 'villa_pequena' | 'villa_grande' | 'penthouse' | 'local' | 'otro'
 export type Prioridad = 'alta' | 'media' | 'baja' | 'na'
@@ -43,6 +43,7 @@ export interface Lead {
   apartamento: string | null
   prioridad: Prioridad | null
   pendientes: string | null
+  presupuesto_aprobado: number | null
 }
 
 export interface LeadConActividad extends Lead {
@@ -61,7 +62,12 @@ export interface LeadEvento {
   autor: string
   estado_anterior: Estado | null
   estado_nuevo: Estado | null
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown> & {
+    fecha_vencimiento?: string
+    doc_nombre?: string
+    doc_url?: string
+    doc_tamano?: number
+  }
 }
 
 export interface LeadDetalle extends Lead {
@@ -158,11 +164,12 @@ export const PRIORIDAD_STYLES: Record<Prioridad, { bg: string; text: string; lab
 export const EVENTO_ICONS: Record<TipoEvento, string> = {
   llamada: '📞', whatsapp: '💬', email: '📧', reunion: '🤝',
   propuesta_enviada: '📄', contrato: '✅', nota: '📝',
-  estado_cambiado: '🔄', creacion: '🌱', tarea: '⏰',
+  estado_cambiado: '🔄', creacion: '🌱', tarea: '⏰', documento_adjunto: '📎',
 }
 
 export const EVENTO_LABELS: Record<TipoEvento, string> = {
   llamada: 'Llamada', whatsapp: 'WhatsApp', email: 'Email', reunion: 'Reunión',
   propuesta_enviada: 'Propuesta enviada', contrato: 'Contrato', nota: 'Nota',
   estado_cambiado: 'Cambio de estado', creacion: 'Creación', tarea: 'Tarea',
+  documento_adjunto: 'Documento adjunto',
 }

@@ -15,6 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       fecha: body.fecha || new Date().toISOString(),
       estado_anterior: body.estado_anterior || null,
       estado_nuevo: body.estado_nuevo || null,
+      metadata: body.metadata || {},
     })
     .select()
     .single()

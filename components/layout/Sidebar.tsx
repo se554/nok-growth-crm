@@ -6,6 +6,8 @@ import { Kanban, BarChart2, Users, Clock, LogOut } from 'lucide-react'
 import { clsx } from 'clsx'
 import { createClient } from '@/lib/supabase-browser'
 import { useEffect, useState } from 'react'
+import { format, isToday, isPast } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 const nav = [
   { href: '/pipeline',     label: 'Pipeline',      icon: Kanban    },
@@ -14,16 +16,38 @@ const nav = [
   { href: '/actividad',    label: 'Actividad',     icon: Clock     },
 ]
 
+interface TareaPendiente {
+  id: string
+  lead_id: string
+  lead_nombre: string
+  descripcion: string
+  fecha_vencimiento: string | null
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [tareas, setTareas] = useState<TareaPendiente[]>([])
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       setUserEmail(data.user?.email ?? null)
     })
+  }, [])
+
+  const cargarTareas = () => {
+    fetch('/api/tareas/pendientes')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setTareas(data) })
+      .catch(() => {})
+  }
+
+  useEffect(() => {
+    cargarTareas()
+    const interval = setInterval(cargarTareas, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleLogout = async () => {
@@ -44,7 +68,7 @@ export default function Sidebar() {
       {/* Logo NOK */}
       <div className="px-5 pt-6 pb-4 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/nok-16.jpg" alt="NOK" style={{ width: '160px', height: 'auto', mixBlendMode: 'screen' }} />
+        <img src="/nok_negro.png" alt="NOK" style={{ width: '160px', height: 'auto' }} />
         <p className="text-[9px] font-semibold tracking-[0.2em] uppercase mt-2"
           style={{ color: '#d6a700' }}>
           Growth CRM
@@ -52,7 +76,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-0.5">
+      <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
         {nav.map(({ href, label, icon: Icon }) => {
           const active = pathname.startsWith(href)
           return (
@@ -72,6 +96,44 @@ export default function Sidebar() {
             </Link>
           )
         })}
+
+        {/* Widget tareas pendientes */}
+        {tareas.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <p className="text-[9px] font-semibold tracking-[0.15em] uppercase px-3 mb-2"
+              style={{ color: '#d6a700' }}>
+              ⏰ Pendientes ({tareas.length})
+            </p>
+            <div className="space-y-1">
+              {tareas.slice(0, 5).map(t => {
+                const venc = t.fecha_vencimiento ? new Date(t.fecha_vencimiento) : null
+                const hoy = venc ? isToday(venc) : false
+                const vencido = venc ? isPast(venc) && !hoy : false
+                return (
+                  <Link
+                    key={t.id}
+                    href={`/pipeline?lead=${t.lead_id}`}
+                    className="block px-3 py-2 rounded-xl hover:bg-white/5 transition-all"
+                  >
+                    <p className="text-[11px] text-white/70 leading-tight truncate">{t.lead_nombre}</p>
+                    <p className="text-[10px] text-white/40 leading-tight truncate mt-0.5">{t.descripcion}</p>
+                    {venc && (
+                      <p className={clsx(
+                        'text-[9px] mt-0.5 font-medium',
+                        hoy ? 'text-amber-400' : vencido ? 'text-red-400' : 'text-green-400'
+                      )}>
+                        {hoy ? 'Hoy' : format(venc, "d MMM", { locale: es })}
+                      </p>
+                    )}
+                  </Link>
+                )
+              })}
+              {tareas.length > 5 && (
+                <p className="text-[10px] text-white/30 px-3">+{tareas.length - 5} más</p>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Usuario + Logout */}

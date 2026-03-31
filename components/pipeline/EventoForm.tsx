@@ -15,6 +15,7 @@ interface Props {
 export default function EventoForm({ leadId, onEventoAdded }: Props) {
   const [tipo, setTipo] = useState<TipoEvento>('nota')
   const [descripcion, setDescripcion] = useState('')
+  const [fechaRecordatorio, setFechaRecordatorio] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,13 +23,19 @@ export default function EventoForm({ leadId, onEventoAdded }: Props) {
     if (!descripcion.trim()) return
     setLoading(true)
 
+    const metadata: Record<string, string> = {}
+    if (fechaRecordatorio) {
+      metadata.fecha_vencimiento = new Date(fechaRecordatorio + 'T23:59:59').toISOString()
+    }
+
     await fetch(`/api/leads/${leadId}/eventos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, descripcion }),
+      body: JSON.stringify({ tipo, descripcion, metadata }),
     })
 
     setDescripcion('')
+    setFechaRecordatorio('')
     setLoading(false)
     onEventoAdded()
   }
@@ -63,6 +70,24 @@ export default function EventoForm({ leadId, onEventoAdded }: Props) {
         rows={3}
         className="w-full text-[13px] border border-[#E8E6E0] rounded-xl px-3 py-2 resize-none outline-none focus:border-[#C9A84C] transition-all text-[#1A1A1A] placeholder-[#6B6B6B]"
       />
+
+      {/* Fecha recordatorio — siempre visible */}
+      <div className="flex items-center gap-2 bg-white border border-[#E8E6E0] rounded-xl px-3 py-2">
+        <span className="text-[12px]">📅</span>
+        <div className="flex-1">
+          <p className="text-[10px] text-[#6B6B6B] mb-0.5">Recordatorio (opcional)</p>
+          <input
+            type="date"
+            value={fechaRecordatorio}
+            onChange={(e) => setFechaRecordatorio(e.target.value)}
+            className="w-full text-[12px] text-[#1A1A1A] outline-none bg-transparent"
+          />
+        </div>
+        {fechaRecordatorio && (
+          <button type="button" onClick={() => setFechaRecordatorio('')}
+            className="text-[10px] text-[#6B6B6B] hover:text-red-400 transition-colors">✕</button>
+        )}
+      </div>
 
       <button
         type="submit"
