@@ -44,7 +44,7 @@ export default function Sidebar() {
       {/* Logo NOK */}
       <div className="px-5 pt-6 pb-4 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/nok-logo-white.svg" alt="NOK" style={{ width: '160px', height: 'auto' }} />
+        <img src="/nok-16.jpg" alt="NOK" style={{ width: '160px', height: 'auto', mixBlendMode: 'screen' }} />
         <p className="text-[9px] font-semibold tracking-[0.2em] uppercase mt-2"
           style={{ color: '#d6a700' }}>
           Growth CRM

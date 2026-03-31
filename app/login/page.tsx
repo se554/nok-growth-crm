@@ -39,7 +39,7 @@ export default function LoginPage() {
         <div className="px-8 pt-8 pb-6 flex flex-col items-center"
           style={{ backgroundColor: '#0b2922' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/nok-logo-white.svg" alt="NOK" style={{ width: '160px', height: 'auto' }} />
+          <img src="/nok-16.jpg" alt="NOK" style={{ width: '160px', height: 'auto', mixBlendMode: 'screen' }} />
           <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mt-2"
             style={{ color: '#d6a700' }}>
             Growth CRM
