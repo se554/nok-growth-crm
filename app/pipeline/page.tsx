@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Plus, Globe, FolderOpen } from 'lucide-react'
 import type { LeadConActividad, PipelineMetrics } from '@/lib/types'
 import KanbanBoard from '@/components/pipeline/KanbanBoard'
@@ -36,12 +37,22 @@ export default function PipelinePage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [filterPais, setFilterPais] = useState('')
   const [filterProyecto, setFilterProyecto] = useState('')
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     fetch('/api/analytics')
       .then((r) => r.json())
       .then(setMetrics)
   }, [refreshKey])
+
+  // Abrir drawer si viene ?lead=<id> desde la página de tareas
+  useEffect(() => {
+    const leadId = searchParams.get('lead')
+    if (!leadId) return
+    fetch(`/api/leads/${leadId}`)
+      .then(r => r.json())
+      .then(data => { if (data?.id) setSelectedLead(data as LeadConActividad) })
+  }, [searchParams])
 
   const handleLeadUpdated = () => {
     setRefreshKey((k) => k + 1)

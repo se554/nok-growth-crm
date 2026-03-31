@@ -2,33 +2,24 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Kanban, BarChart2, Users, Clock, LogOut } from 'lucide-react'
+import { Kanban, BarChart2, Users, Clock, LogOut, CheckSquare } from 'lucide-react'
 import { clsx } from 'clsx'
 import { createClient } from '@/lib/supabase-browser'
 import { useEffect, useState } from 'react'
-import { format, isToday, isPast } from 'date-fns'
-import { es } from 'date-fns/locale'
 
 const nav = [
-  { href: '/pipeline',     label: 'Pipeline',      icon: Kanban    },
-  { href: '/analitica',    label: 'Analítica',     icon: BarChart2 },
-  { href: '/propietarios', label: 'Propietarios',  icon: Users     },
-  { href: '/actividad',    label: 'Actividad',     icon: Clock     },
+  { href: '/pipeline',     label: 'Pipeline',      icon: Kanban      },
+  { href: '/tareas',       label: 'Tareas',         icon: CheckSquare },
+  { href: '/analitica',    label: 'Analítica',      icon: BarChart2   },
+  { href: '/propietarios', label: 'Propietarios',   icon: Users       },
+  { href: '/actividad',    label: 'Actividad',      icon: Clock       },
 ]
-
-interface TareaPendiente {
-  id: string
-  lead_id: string
-  lead_nombre: string
-  descripcion: string
-  fecha_vencimiento: string | null
-}
 
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [tareas, setTareas] = useState<TareaPendiente[]>([])
+  const [tareasUrgentes, setTareasUrgentes] = useState(0)
 
   useEffect(() => {
     const supabase = createClient()
@@ -40,7 +31,7 @@ export default function Sidebar() {
   const cargarTareas = () => {
     fetch('/api/tareas/pendientes')
       .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setTareas(data) })
+      .then(data => { if (Array.isArray(data)) setTareasUrgentes(data.length) })
       .catch(() => {})
   }
 
@@ -76,9 +67,10 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-5 space-y-0.5">
         {nav.map(({ href, label, icon: Icon }) => {
           const active = pathname.startsWith(href)
+          const esTareas = href === '/tareas'
           return (
             <Link
               key={href}
@@ -92,48 +84,15 @@ export default function Sidebar() {
               style={active ? { backgroundColor: 'rgba(214,167,0,0.15)', color: '#d6a700' } : {}}
             >
               <Icon size={15} strokeWidth={active ? 2.5 : 1.5} />
-              {label}
+              <span className="flex-1">{label}</span>
+              {esTareas && tareasUrgentes > 0 && (
+                <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                  {tareasUrgentes}
+                </span>
+              )}
             </Link>
           )
         })}
-
-        {/* Widget tareas pendientes */}
-        {tareas.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <p className="text-[9px] font-semibold tracking-[0.15em] uppercase px-3 mb-2"
-              style={{ color: '#d6a700' }}>
-              ⏰ Pendientes ({tareas.length})
-            </p>
-            <div className="space-y-1">
-              {tareas.slice(0, 5).map(t => {
-                const venc = t.fecha_vencimiento ? new Date(t.fecha_vencimiento) : null
-                const hoy = venc ? isToday(venc) : false
-                const vencido = venc ? isPast(venc) && !hoy : false
-                return (
-                  <Link
-                    key={t.id}
-                    href={`/pipeline?lead=${t.lead_id}`}
-                    className="block px-3 py-2 rounded-xl hover:bg-white/5 transition-all"
-                  >
-                    <p className="text-[11px] text-white/70 leading-tight truncate">{t.lead_nombre}</p>
-                    <p className="text-[10px] text-white/40 leading-tight truncate mt-0.5">{t.descripcion}</p>
-                    {venc && (
-                      <p className={clsx(
-                        'text-[9px] mt-0.5 font-medium',
-                        hoy ? 'text-amber-400' : vencido ? 'text-red-400' : 'text-green-400'
-                      )}>
-                        {hoy ? 'Hoy' : format(venc, "d MMM", { locale: es })}
-                      </p>
-                    )}
-                  </Link>
-                )
-              })}
-              {tareas.length > 5 && (
-                <p className="text-[10px] text-white/30 px-3">+{tareas.length - 5} más</p>
-              )}
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Usuario + Logout */}
