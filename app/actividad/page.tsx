@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { format, isToday, isYesterday, isThisWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { clsx } from 'clsx'
@@ -31,11 +32,17 @@ export default function ActividadPage() {
   const [loading, setLoading] = useState(true)
   const [filterTipo, setFilterTipo] = useState<TipoEvento | ''>('')
 
-  useEffect(() => {
+  const cargar = useCallback(() => {
     fetch('/api/actividad').then(r => r.json()).then(data => {
       setEventos(data)
       setLoading(false)
     })
+  }, [])
+
+  useEffect(() => {
+    cargar()
+    const interval = setInterval(cargar, 30000) // auto-refresh cada 30s
+    return () => clearInterval(interval)
   }, [])
 
   const filtered = filterTipo ? eventos.filter(e => e.tipo === filterTipo) : eventos
@@ -48,6 +55,11 @@ export default function ActividadPage() {
           <h1 className="text-[18px] font-semibold text-[#1A1A1A]">Actividad</h1>
           <p className="text-[12px] text-[#6B6B6B]">Feed cronológico de todos los eventos</p>
         </div>
+        <div className="flex items-center gap-2">
+          <button onClick={cargar}
+            className="p-1.5 text-[#6B6B6B] hover:text-[#C9A84C] border border-[#E8E6E0] rounded-lg hover:bg-[#F5F3EE] transition-all">
+            <RefreshCw size={14} />
+          </button>
         <select value={filterTipo} onChange={e => setFilterTipo(e.target.value as TipoEvento | '')}
           className="text-[12px] border border-[#E8E6E0] rounded-lg px-3 py-1.5 outline-none focus:border-[#C9A84C] bg-white text-[#1A1A1A]">
           <option value="">Todos los tipos</option>
@@ -55,6 +67,7 @@ export default function ActividadPage() {
             <option key={t} value={t}>{EVENTO_ICONS[t]} {EVENTO_LABELS[t]}</option>
           ))}
         </select>
+        </div>
       </div>
 
       {loading ? (
