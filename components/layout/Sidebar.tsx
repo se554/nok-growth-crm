@@ -37,9 +37,9 @@ export default function Sidebar() {
 
   useEffect(() => {
     cargarTareas()
-    const interval = setInterval(cargarTareas, 60000)
+    const interval = setInterval(cargarTareas, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [pathname])
 
   const handleLogout = async () => {
     const supabase = createClient()
