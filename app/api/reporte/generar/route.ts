@@ -3,8 +3,14 @@ import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Instanciar dentro del handler para evitar error en build
+let _anthropic: Anthropic | null = null
+let _resend: Resend | null = null
+const getClients = () => {
+  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY!)
+  return { anthropic: _anthropic, resend: _resend }
+}
 
 const DESTINATARIOS = ['se@nok.rent']
 
@@ -97,6 +103,7 @@ async function recopilarDatos() {
 }
 
 async function generarInsightsClaude(datos: any): Promise<string> {
+  const { anthropic } = getClients()
   const msg = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
@@ -270,6 +277,7 @@ export async function POST() {
     })
     const html = generarHTML(datos, insights, fecha)
 
+    const { resend } = getClients()
     const { error } = await resend.emails.send({
       from: 'NOK CRM <onboarding@resend.dev>',
       to: DESTINATARIOS,
