@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send } from 'lucide-react'
-import { clsx } from 'clsx'
 import type { ChatMessage } from '@/lib/types'
 
 const SUGERENCIAS = [
@@ -31,7 +30,6 @@ export default function ChatPanel() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Rotar placeholder
   useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIdx((i) => (i + 1) % PLACEHOLDERS.length)
@@ -39,7 +37,6 @@ export default function ChatPanel() {
     return () => clearInterval(interval)
   }, [])
 
-  // Auto scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
@@ -88,10 +85,7 @@ export default function ChatPanel() {
                   assistantText += parsed.text
                   setMessages((prev) => {
                     const updated = [...prev]
-                    updated[updated.length - 1] = {
-                      role: 'assistant',
-                      content: assistantText,
-                    }
+                    updated[updated.length - 1] = { role: 'assistant', content: assistantText }
                     return updated
                   })
                 }
@@ -114,49 +108,49 @@ export default function ChatPanel() {
   }
 
   return (
-    <aside className="w-[320px] shrink-0 bg-white border-l border-[#E8E6E0] flex flex-col h-screen sticky top-0">
+    <aside className="w-[300px] shrink-0 flex flex-col h-screen sticky top-0"
+      style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border)' }}>
+
       {/* Header */}
-      <div className="px-4 py-4 border-b border-[#E8E6E0]">
-        <div className="flex items-center gap-2">
+      <div className="px-4 py-4 shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-2.5">
           <div className="relative">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <div className="w-2 h-2 rounded-full bg-green-500 absolute inset-0 animate-ping opacity-60" />
+            <div className="w-2 h-2 rounded-full bg-emerald-400" />
+            <div className="w-2 h-2 rounded-full bg-emerald-400 absolute inset-0 animate-ping opacity-50" />
           </div>
-          <p className="text-[13px] font-medium text-[#1A1A1A]">Asistente NOK</p>
+          <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>Asistente NOK</p>
         </div>
-        <p className="text-[11px] text-[#6B6B6B] mt-0.5 ml-4">Powered by Claude</p>
+        <p className="text-[10px] mt-0.5 ml-4.5 tracking-wide" style={{ color: 'var(--text-dim)' }}>
+          Powered by Claude
+        </p>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={clsx('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}
-          >
+          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
-              className={clsx(
-                'max-w-[85%] rounded-2xl px-3 py-2 text-[13px] leading-relaxed',
-                msg.role === 'user'
-                  ? 'bg-[#C9A84C] text-white rounded-tr-sm'
-                  : 'bg-[#F5F3EE] text-[#1A1A1A] rounded-tl-sm'
-              )}
+              className="max-w-[88%] rounded-2xl px-3 py-2 text-[12.5px] leading-relaxed"
+              style={msg.role === 'user'
+                ? { background: 'var(--gold)', color: '#1D1D1B', borderBottomRightRadius: '4px' }
+                : { background: 'var(--surface-el)', color: 'var(--text-primary)', borderBottomLeftRadius: '4px', border: '1px solid var(--border)' }
+              }
             >
               {msg.content || (loading && i === messages.length - 1 ? (
                 <span className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-[#6B6B6B] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 bg-[#6B6B6B] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 bg-[#6B6B6B] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--text-muted)', animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--text-muted)', animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--text-muted)', animationDelay: '300ms' }} />
                 </span>
               ) : '')}
             </div>
           </div>
         ))}
 
-        {/* Tool use indicator */}
         {loading && loadingText && (
           <div className="flex justify-start">
-            <div className="bg-[#F5F3EE] rounded-2xl rounded-tl-sm px-3 py-2 text-[11px] text-[#6B6B6B] italic">
+            <div className="rounded-2xl px-3 py-2 text-[11px] italic"
+              style={{ background: 'var(--surface-el)', color: 'var(--text-dim)', border: '1px solid var(--border)' }}>
               {loadingText}
             </div>
           </div>
@@ -165,14 +159,17 @@ export default function ChatPanel() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Sugerencias */}
-      <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+      {/* Suggestions */}
+      <div className="px-3 pb-2 flex flex-wrap gap-1.5 shrink-0">
         {SUGERENCIAS.map((s) => (
           <button
             key={s}
             onClick={() => sendMessage(s)}
             disabled={loading}
-            className="text-[11px] px-2.5 py-1 rounded-full border border-[#E8E6E0] text-[#6B6B6B] hover:border-[#C9A84C] hover:text-[#C9A84C] transition-all disabled:opacity-40"
+            className="text-[10px] px-2.5 py-1 rounded-full transition-all disabled:opacity-40"
+            style={{ background: 'var(--surface-hi)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.color = 'var(--gold)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
           >
             {s}
           </button>
@@ -180,8 +177,9 @@ export default function ChatPanel() {
       </div>
 
       {/* Input */}
-      <div className="px-4 pb-4">
-        <div className="flex items-center gap-2 border border-[#E8E6E0] rounded-xl px-3 py-2 focus-within:border-[#C9A84C] transition-all">
+      <div className="px-3 pb-4 shrink-0">
+        <div className="flex items-center gap-2 rounded-xl px-3 py-2 transition-all"
+          style={{ background: 'var(--surface-el)', border: '1px solid var(--border-mid)' }}>
           <input
             type="text"
             value={input}
@@ -189,14 +187,16 @@ export default function ChatPanel() {
             onKeyDown={(e) => e.key === 'Enter' && sendMessage(input)}
             placeholder={PLACEHOLDERS[placeholderIdx]}
             disabled={loading}
-            className="flex-1 text-[13px] bg-transparent outline-none text-[#1A1A1A] placeholder-[#6B6B6B] disabled:opacity-50"
+            className="flex-1 text-[12.5px] bg-transparent outline-none disabled:opacity-50"
+            style={{ color: 'var(--text-primary)' }}
           />
           <button
             onClick={() => sendMessage(input)}
             disabled={!input.trim() || loading}
-            className="w-7 h-7 rounded-lg bg-[#C9A84C] flex items-center justify-center disabled:opacity-30 hover:bg-[#b8963f] transition-all"
+            className="w-7 h-7 rounded-lg flex items-center justify-center disabled:opacity-30 transition-all shrink-0"
+            style={{ background: 'var(--gold)' }}
           >
-            <Send size={13} className="text-white" />
+            <Send size={13} style={{ color: '#1D1D1B' }} />
           </button>
         </div>
       </div>

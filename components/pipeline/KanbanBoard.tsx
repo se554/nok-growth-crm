@@ -2,16 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
+  DndContext, DragEndEvent, DragOverEvent, DragStartEvent,
+  PointerSensor, useSensor, useSensors, DragOverlay,
 } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
 import { supabase } from '@/lib/supabase'
 import type { LeadConActividad, Estado } from '@/lib/types'
 import { ESTADOS_ORDEN } from '@/lib/types'
@@ -47,11 +40,8 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     setLoading(false)
   }, [filterPais, filterProyecto])
 
-  useEffect(() => {
-    fetchLeads()
-  }, [fetchLeads, filterPais, filterProyecto])
+  useEffect(() => { fetchLeads() }, [fetchLeads, filterPais, filterProyecto])
 
-  // Filtro client-side por búsqueda de texto
   const q = (filterSearch ?? '').toLowerCase().trim()
   const leads = q
     ? allLeads.filter(l =>
@@ -63,7 +53,6 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
       )
     : allLeads
 
-  // Supabase Realtime — no refrescar mientras hay un drag activo
   useEffect(() => {
     const channel = supabase
       .channel('leads-changes')
@@ -71,7 +60,6 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
         if (!isDragging) fetchLeads()
       })
       .subscribe()
-
     return () => { supabase.removeChannel(channel) }
   }, [fetchLeads, isDragging])
 
@@ -79,8 +67,7 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
 
-  const getLeadsByEstado = (estado: Estado) =>
-    leads.filter((l) => l.estado === estado)
+  const getLeadsByEstado = (estado: Estado) => leads.filter((l) => l.estado === estado)
 
   const handleDragStart = (event: DragStartEvent) => {
     const lead = allLeads.find((l) => l.id === event.active.id)
@@ -94,20 +81,18 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     const activeId = active.id as string
     const overId = over.id as string
 
-    const activeLead = allLeads.find((l) => l.id === activeId)
-    if (!activeLead) return
+    const activeLeadItem = allLeads.find((l) => l.id === activeId)
+    if (!activeLeadItem) return
 
-    // Si cayó sobre una columna (estado)
     const overEstado = ESTADOS_ORDEN.includes(overId as Estado) ? (overId as Estado) : null
-    if (overEstado && activeLead.estado !== overEstado) {
+    if (overEstado && activeLeadItem.estado !== overEstado) {
       setAllLeads((prev) =>
         prev.map((l) => (l.id === activeId ? { ...l, estado: overEstado } : l))
       )
     }
 
-    // Si cayó sobre otro card
     const overLead = allLeads.find((l) => l.id === overId)
-    if (overLead && overLead.estado !== activeLead.estado) {
+    if (overLead && overLead.estado !== activeLeadItem.estado) {
       setAllLeads((prev) =>
         prev.map((l) => (l.id === activeId ? { ...l, estado: overLead.estado } : l))
       )
@@ -126,7 +111,6 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     const originalLead = activeLead
     if (!originalLead || originalLead.estado === lead.estado) return
 
-    // Persistir en Supabase
     await fetch(`/api/leads/${activeId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -136,7 +120,6 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
         nota: `Movido de ${originalLead.estado} a ${lead.estado} via Kanban`,
       }),
     })
-    // Refrescar desde DB para confirmar estado real
     fetchLeads()
   }
 
@@ -145,10 +128,10 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
       <div className="flex gap-4 p-6">
         {ESTADOS_ORDEN.map((e) => (
           <div key={e} className="w-[260px] shrink-0">
-            <div className="h-6 bg-white rounded-full w-24 mb-3 animate-pulse" />
+            <div className="h-5 rounded-full w-20 mb-3 animate-pulse" style={{ background: 'var(--surface-hi)' }} />
             <div className="space-y-2">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-24 bg-white rounded-xl animate-pulse" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-24 rounded-xl animate-pulse" style={{ background: 'var(--surface-el)' }} />
               ))}
             </div>
           </div>
@@ -177,7 +160,7 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
 
       <DragOverlay>
         {activeLead && (
-          <div className="rotate-2 shadow-xl opacity-90">
+          <div className="rotate-2 scale-105" style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.6))' }}>
             <DealCard lead={activeLead} onClick={() => {}} />
           </div>
         )}

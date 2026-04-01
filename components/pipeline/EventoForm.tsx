@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { clsx } from 'clsx'
 import type { TipoEvento } from '@/lib/types'
 import { EVENTO_ICONS, EVENTO_LABELS } from '@/lib/types'
 
@@ -49,12 +48,11 @@ export default function EventoForm({ leadId, onEventoAdded }: Props) {
             key={t}
             type="button"
             onClick={() => setTipo(t)}
-            className={clsx(
-              'flex items-center gap-1 text-[11px] px-2 py-1 rounded-full border transition-all',
-              tipo === t
-                ? 'bg-[#C9A84C] text-white border-[#C9A84C]'
-                : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#C9A84C]'
-            )}
+            className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-full transition-all"
+            style={tipo === t
+              ? { background: 'var(--gold)', color: '#1D1D1B', border: '1px solid var(--gold)' }
+              : { background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--border-mid)' }
+            }
           >
             <span>{EVENTO_ICONS[t]}</span>
             {EVENTO_LABELS[t]}
@@ -68,31 +66,46 @@ export default function EventoForm({ leadId, onEventoAdded }: Props) {
         onChange={(e) => setDescripcion(e.target.value)}
         placeholder="Descripción del evento..."
         rows={3}
-        className="w-full text-[13px] border border-[#E8E6E0] rounded-xl px-3 py-2 resize-none outline-none focus:border-[#C9A84C] transition-all text-[#1A1A1A] placeholder-[#6B6B6B]"
+        className="w-full text-[13px] rounded-xl px-3 py-2 resize-none outline-none transition-all"
+        style={{
+          background: 'var(--surface-hi)',
+          border: '1px solid var(--border-mid)',
+          color: 'var(--text-primary)',
+        }}
+        onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+        onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}
       />
 
-      {/* Fecha recordatorio — siempre visible */}
-      <div className="flex items-center gap-2 bg-white border border-[#E8E6E0] rounded-xl px-3 py-2">
-        <span className="text-[12px]">📅</span>
+      {/* Fecha recordatorio */}
+      <div className="flex items-center gap-2 rounded-xl px-3 py-2"
+        style={{ background: 'var(--surface-hi)', border: '1px solid var(--border-mid)' }}>
+        <span className="text-[12px] shrink-0">📅</span>
         <div className="flex-1">
-          <p className="text-[10px] text-[#6B6B6B] mb-0.5">Recordatorio (opcional)</p>
+          <p className="text-[10px] mb-0.5" style={{ color: 'var(--text-dim)' }}>Recordatorio (opcional)</p>
           <input
             type="date"
             value={fechaRecordatorio}
             onChange={(e) => setFechaRecordatorio(e.target.value)}
-            className="w-full text-[12px] text-[#1A1A1A] outline-none bg-transparent"
+            className="w-full text-[12px] bg-transparent outline-none"
+            style={{ color: 'var(--text-primary)', colorScheme: 'dark' }}
           />
         </div>
         {fechaRecordatorio && (
           <button type="button" onClick={() => setFechaRecordatorio('')}
-            className="text-[10px] text-[#6B6B6B] hover:text-red-400 transition-colors">✕</button>
+            className="text-[10px] transition-colors shrink-0"
+            style={{ color: 'var(--text-dim)' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-dim)'}>
+            ✕
+          </button>
         )}
       </div>
 
       <button
         type="submit"
         disabled={!descripcion.trim() || loading}
-        className="w-full bg-[#C9A84C] text-white text-[13px] font-medium py-2 rounded-xl hover:bg-[#b8963f] disabled:opacity-40 transition-all"
+        className="w-full text-[13px] font-medium py-2 rounded-xl transition-all disabled:opacity-40"
+        style={{ background: 'var(--gold)', color: '#1D1D1B' }}
       >
         {loading ? 'Guardando...' : 'Agregar a hoja de vida'}
       </button>

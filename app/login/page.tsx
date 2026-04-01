@@ -28,36 +28,47 @@ export default function LoginPage() {
     }
   }
 
+  const inpStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 12px',
+    fontSize: '13px',
+    borderRadius: '10px',
+    border: '1px solid var(--border-mid)',
+    background: 'var(--surface-hi)',
+    color: 'var(--text-primary)',
+    outline: 'none',
+    transition: 'border-color 0.15s',
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: '#f7f7f3' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
 
-      {/* Card login */}
-      <div className="bg-white rounded-[22px] w-full max-w-[380px] overflow-hidden shadow-nok">
+      <div className="w-full max-w-[380px] rounded-[22px] overflow-hidden"
+        style={{ background: 'var(--surface)', border: '1px solid var(--border-mid)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}>
 
-        {/* Header verde bosque */}
+        {/* Header */}
         <div className="px-8 pt-8 pb-6 flex flex-col items-center"
-          style={{ backgroundColor: '#0b2922' }}>
+          style={{ background: 'var(--surface-el)', borderBottom: '1px solid var(--border)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/nok_negro.png" alt="NOK" style={{ width: '160px', height: 'auto' }} />
+          <img src="/nok_negro.png" alt="NOK" style={{ width: '140px', height: 'auto', filter: 'brightness(0) invert(1)' }} />
           <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mt-2"
-            style={{ color: '#d6a700' }}>
+            style={{ color: 'var(--gold)' }}>
             Growth CRM
           </p>
         </div>
 
         {/* Form */}
         <div className="px-8 py-7">
-          <h1 className="text-[18px] font-semibold mb-1" style={{ color: '#1d1d1b' }}>
+          <h1 className="text-[18px] font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
             Bienvenido
           </h1>
-          <p className="text-[13px] mb-6" style={{ color: '#6c6c6c' }}>
+          <p className="text-[13px] mb-6" style={{ color: 'var(--text-muted)' }}>
             Ingresa con tu cuenta de equipo
           </p>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#1d1d1b' }}>
+              <label className="block text-[12px] mb-1.5" style={{ color: 'var(--text-muted)' }}>
                 Correo electrónico
               </label>
               <input
@@ -66,19 +77,14 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@nok.rent"
                 required
-                className="w-full px-3 py-2.5 text-[13px] rounded-[10px] outline-none transition-all"
-                style={{
-                  border: '1px solid #d4d4d4',
-                  color: '#1d1d1b',
-                  backgroundColor: 'white',
-                }}
-                onFocus={e => e.target.style.borderColor = '#d6a700'}
-                onBlur={e => e.target.style.borderColor = '#d4d4d4'}
+                style={inpStyle}
+                onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}
               />
             </div>
 
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: '#1d1d1b' }}>
+              <label className="block text-[12px] mb-1.5" style={{ color: 'var(--text-muted)' }}>
                 Contraseña
               </label>
               <input
@@ -87,41 +93,35 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-3 py-2.5 text-[13px] rounded-[10px] outline-none transition-all"
-                style={{
-                  border: '1px solid #d4d4d4',
-                  color: '#1d1d1b',
-                  backgroundColor: 'white',
-                }}
-                onFocus={e => e.target.style.borderColor = '#d6a700'}
-                onBlur={e => e.target.style.borderColor = '#d4d4d4'}
+                style={inpStyle}
+                onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}
               />
             </div>
 
             {error && (
-              <p className="text-[12px] text-red-600 bg-red-50 px-3 py-2 rounded-[10px]">{error}</p>
+              <p className="text-[12px] px-3 py-2 rounded-[10px]"
+                style={{ color: '#f87171', background: 'rgba(242,0,34,0.08)', border: '1px solid rgba(242,0,34,0.2)' }}>
+                {error}
+              </p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full text-white text-[13px] font-semibold py-3 rounded-[10px] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-2"
-              style={{ backgroundColor: '#833b0e' }}
-              onMouseEnter={e => !loading && ((e.target as HTMLElement).style.backgroundColor = '#d6a700', (e.target as HTMLElement).style.color = '#1d1d1b')}
-              onMouseLeave={e => ((e.target as HTMLElement).style.backgroundColor = '#833b0e', (e.target as HTMLElement).style.color = 'white')}
+              className="btn-gold w-full py-3 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </form>
 
-          <p className="text-[11px] text-center mt-6" style={{ color: '#8b8b8b' }}>
+          <p className="text-[11px] text-center mt-6" style={{ color: 'var(--text-dim)' }}>
             ¿No tienes acceso? Contacta a tu administrador
           </p>
         </div>
       </div>
 
-      {/* Footer */}
-      <p className="absolute bottom-6 text-[11px]" style={{ color: '#8b8b8b' }}>
+      <p className="absolute bottom-6 text-[11px]" style={{ color: 'var(--text-dim)' }}>
         © 2026 NOK Property Management · República Dominicana
       </p>
     </div>

@@ -19,6 +19,68 @@ const TIPOLOGIAS_POR_TIPO: Record<string, Tipologia[]> = {
   otro: ['otro'],
 }
 
+const inpStyle: React.CSSProperties = {
+  width: '100%',
+  fontSize: '13px',
+  background: 'var(--surface-hi)',
+  border: '1px solid var(--border-mid)',
+  borderRadius: '10px',
+  padding: '7px 12px',
+  color: 'var(--text-primary)',
+  outline: 'none',
+  transition: 'border-color 0.15s',
+}
+
+function Inp({ value, onChange, placeholder, type = 'text', required = false }: {
+  value: string; onChange: (v: string) => void; placeholder?: string; type?: string; required?: boolean
+}) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      required={required}
+      style={inpStyle}
+      onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+      onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}
+    />
+  )
+}
+
+function Sel({ value, onChange, children }: {
+  value: string; onChange: (v: string) => void; children: React.ReactNode
+}) {
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      style={{ ...inpStyle, colorScheme: 'dark' }}
+      onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+      onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}
+    >
+      {children}
+    </select>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-3"
+      style={{ color: 'var(--gold)' }}>
+      {children}
+    </p>
+  )
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="block text-[11px] mb-1" style={{ color: 'var(--text-muted)' }}>
+      {children}
+    </label>
+  )
+}
+
 export default function AddLeadModal({ onClose, onCreated }: Props) {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
@@ -69,210 +131,165 @@ export default function AddLeadModal({ onClose, onCreated }: Props) {
     onClose()
   }
 
-  const inp = "w-full text-[13px] border border-[#E8E6E0] rounded-xl px-3 py-2 outline-none focus:border-[#C9A84C] transition-all text-[#1A1A1A] placeholder-[#6B6B6B] bg-white"
-  const lbl = "block text-[11px] font-medium text-[#6B6B6B] mb-1"
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-[600px] shadow-2xl max-h-[92vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E6E0]">
-          <h2 className="text-[15px] font-semibold text-[#1A1A1A]">Nuevo lead</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-[#F5F3EE] rounded-lg transition-all">
-            <X size={16} className="text-[#6B6B6B]" />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative w-[600px] rounded-2xl shadow-2xl max-h-[92vh] flex flex-col"
+        style={{ background: 'var(--surface)', border: '1px solid var(--border-mid)' }}>
+
+        <div className="flex items-center justify-between px-6 py-4 shrink-0"
+          style={{ borderBottom: '1px solid var(--border)' }}>
+          <h2 className="text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>Nuevo lead</h2>
+          <button onClick={onClose}
+            className="p-1.5 rounded-lg transition-all"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hi)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="overflow-y-auto px-6 py-5 space-y-5">
+        <form onSubmit={handleSubmit} className="overflow-y-auto px-6 py-5 space-y-6">
 
-          {/* Sección: Propietario */}
+          {/* Propietario */}
           <div>
-            <p className="text-[11px] font-semibold text-[#C9A84C] uppercase tracking-wide mb-3">Propietario</p>
+            <SectionLabel>Propietario</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className={lbl}>Nombre completo *</label>
-                <input required value={form.nombre} onChange={e => set('nombre', e.target.value)}
-                  placeholder="María Elena Guzmán" className={inp} />
+                <FieldLabel>Nombre completo *</FieldLabel>
+                <Inp required value={form.nombre} onChange={v => set('nombre', v)} placeholder="María Elena Guzmán" />
               </div>
-              <div>
-                <label className={lbl}>Teléfono</label>
-                <input value={form.telefono} onChange={e => set('telefono', e.target.value)}
-                  placeholder="+1 809-555-0000" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>WhatsApp</label>
-                <input value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)}
-                  placeholder="+1 809-555-0000" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Email</label>
-                <input type="email" value={form.email} onChange={e => set('email', e.target.value)}
-                  placeholder="correo@gmail.com" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Cédula / Pasaporte</label>
-                <input value={form.cedula} onChange={e => set('cedula', e.target.value)}
-                  placeholder="001-1234567-1" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Nacionalidad</label>
-                <input value={form.nacionalidad} onChange={e => set('nacionalidad', e.target.value)}
-                  placeholder="Dominicana" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>País de residencia</label>
-                <input value={form.pais} onChange={e => set('pais', e.target.value)}
-                  placeholder="República Dominicana" className={inp} />
-              </div>
+              <div><FieldLabel>Teléfono</FieldLabel><Inp value={form.telefono} onChange={v => set('telefono', v)} placeholder="+1 809-555-0000" /></div>
+              <div><FieldLabel>WhatsApp</FieldLabel><Inp value={form.whatsapp} onChange={v => set('whatsapp', v)} placeholder="+1 809-555-0000" /></div>
+              <div><FieldLabel>Email</FieldLabel><Inp type="email" value={form.email} onChange={v => set('email', v)} placeholder="correo@gmail.com" /></div>
+              <div><FieldLabel>Cédula / Pasaporte</FieldLabel><Inp value={form.cedula} onChange={v => set('cedula', v)} placeholder="001-1234567-1" /></div>
+              <div><FieldLabel>Nacionalidad</FieldLabel><Inp value={form.nacionalidad} onChange={v => set('nacionalidad', v)} placeholder="Dominicana" /></div>
+              <div><FieldLabel>País de residencia</FieldLabel><Inp value={form.pais} onChange={v => set('pais', v)} placeholder="República Dominicana" /></div>
             </div>
           </div>
 
-          {/* Sección: Propiedad */}
+          {/* Propiedad */}
           <div>
-            <p className="text-[11px] font-semibold text-[#C9A84C] uppercase tracking-wide mb-3">Propiedad</p>
+            <SectionLabel>Propiedad</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className={lbl}>Nombre de la propiedad *</label>
-                <input required value={form.propiedad} onChange={e => set('propiedad', e.target.value)}
-                  placeholder="Apartamento Torre Anacaona" className={inp} />
+                <FieldLabel>Nombre de la propiedad *</FieldLabel>
+                <Inp required value={form.propiedad} onChange={v => set('propiedad', v)} placeholder="Apartamento Torre Anacaona" />
               </div>
               <div>
-                <label className={lbl}>Zona</label>
-                <select value={form.zona} onChange={e => set('zona', e.target.value)} className={inp}>
+                <FieldLabel>Zona</FieldLabel>
+                <Sel value={form.zona} onChange={v => set('zona', v)}>
                   <option value="">Seleccionar...</option>
                   {ZONAS.map(z => <option key={z} value={z}>{z}</option>)}
-                </select>
+                </Sel>
               </div>
               <div>
-                <label className={lbl}>Tipo de propiedad</label>
-                <select value={form.tipo_propiedad}
-                  onChange={e => { set('tipo_propiedad', e.target.value); set('tipologia', '') }}
-                  className={inp}>
+                <FieldLabel>Tipo de propiedad</FieldLabel>
+                <Sel value={form.tipo_propiedad} onChange={v => { set('tipo_propiedad', v); set('tipologia', '') }}>
                   <option value="">Seleccionar...</option>
                   {(Object.entries(TIPO_PROPIEDAD_LABELS) as [TipoPropiedad, string][]).map(([k, v]) => (
                     <option key={k} value={k}>{v}</option>
                   ))}
-                </select>
+                </Sel>
               </div>
               {tipologiasDisponibles.length > 0 && (
                 <div>
-                  <label className={lbl}>Tipología</label>
-                  <select value={form.tipologia} onChange={e => set('tipologia', e.target.value)} className={inp}>
+                  <FieldLabel>Tipología</FieldLabel>
+                  <Sel value={form.tipologia} onChange={v => set('tipologia', v)}>
                     <option value="">Seleccionar...</option>
                     {tipologiasDisponibles.map(t => (
                       <option key={t} value={t}>{TIPOLOGIA_LABELS[t]}</option>
                     ))}
-                  </select>
+                  </Sel>
                 </div>
               )}
+              <div><FieldLabel>Valor mensual estimado ($)</FieldLabel><Inp type="number" value={form.valor_mensual_estimado} onChange={v => set('valor_mensual_estimado', v)} placeholder="3500" /></div>
+              <div><FieldLabel>Número de unidades</FieldLabel><Inp type="number" value={form.numero_unidades} onChange={v => set('numero_unidades', v)} /></div>
+              <div><FieldLabel>Proyecto</FieldLabel><Inp value={form.proyecto} onChange={v => set('proyecto', v)} placeholder="The Towers, Panorama Garden..." /></div>
+              <div><FieldLabel>Apartamento / Unidad</FieldLabel><Inp value={form.apartamento} onChange={v => set('apartamento', v)} placeholder="C2-301" /></div>
               <div>
-                <label className={lbl}>Valor mensual estimado ($)</label>
-                <input type="number" value={form.valor_mensual_estimado}
-                  onChange={e => set('valor_mensual_estimado', e.target.value)}
-                  placeholder="3500" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Número de unidades</label>
-                <input type="number" min="1" value={form.numero_unidades}
-                  onChange={e => set('numero_unidades', e.target.value)} className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Proyecto</label>
-                <input value={form.proyecto} onChange={e => set('proyecto', e.target.value)}
-                  placeholder="The Towers, Panorama Garden..." className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Apartamento / Unidad</label>
-                <input value={form.apartamento} onChange={e => set('apartamento', e.target.value)}
-                  placeholder="C2-301" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Prioridad</label>
-                <select value={form.prioridad} onChange={e => set('prioridad', e.target.value)} className={inp}>
+                <FieldLabel>Prioridad</FieldLabel>
+                <Sel value={form.prioridad} onChange={v => set('prioridad', v)}>
                   <option value="">Sin definir</option>
                   <option value="alta">Alta</option>
                   <option value="media">Media</option>
                   <option value="baja">Baja</option>
                   <option value="na">N/A</option>
-                </select>
+                </Sel>
               </div>
             </div>
 
-            {/* NOK ejecuta */}
-            <div className="mt-3 flex items-center gap-3 p-3 bg-[#F5F3EE] rounded-xl border border-[#E8E6E0]">
-              <input type="checkbox" id="ejecucion_nok" checked={form.ejecucion_nok}
-                onChange={e => set('ejecucion_nok', e.target.checked)}
-                className="w-4 h-4 accent-[#C9A84C]" />
+            <div className="mt-3 flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
+              style={{ background: form.ejecucion_nok ? 'var(--gold-dim)' : 'var(--surface-el)', border: `1px solid ${form.ejecucion_nok ? 'var(--gold-mid)' : 'var(--border)'}` }}
+              onClick={() => set('ejecucion_nok', !form.ejecucion_nok)}>
+              <input type="checkbox" checked={form.ejecucion_nok} onChange={() => {}} className="w-4 h-4" style={{ accentColor: 'var(--gold)' }} />
               <div>
-                <label htmlFor="ejecucion_nok" className="text-[13px] font-medium text-[#1A1A1A] cursor-pointer">
-                  NOK ejecuta la compra
-                </label>
-                <p className="text-[11px] text-[#6B6B6B]">NOK realizará la adquisición o inversión de la propiedad</p>
+                <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>NOK ejecuta la compra</p>
+                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>NOK realizará la adquisición o inversión de la propiedad</p>
               </div>
             </div>
           </div>
 
-          {/* Sección: Datos bancarios */}
+          {/* Datos bancarios */}
           <div>
-            <p className="text-[11px] font-semibold text-[#C9A84C] uppercase tracking-wide mb-3">Datos bancarios</p>
+            <SectionLabel>Datos bancarios</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={lbl}>Banco</label>
-                <input value={form.banco} onChange={e => set('banco', e.target.value)}
-                  placeholder="Banco Popular" className={inp} />
-              </div>
-              <div>
-                <label className={lbl}>Número de cuenta</label>
-                <input value={form.numero_cuenta} onChange={e => set('numero_cuenta', e.target.value)}
-                  placeholder="814-123456-7" className={inp} />
-              </div>
+              <div><FieldLabel>Banco</FieldLabel><Inp value={form.banco} onChange={v => set('banco', v)} placeholder="Banco Popular" /></div>
+              <div><FieldLabel>Número de cuenta</FieldLabel><Inp value={form.numero_cuenta} onChange={v => set('numero_cuenta', v)} placeholder="814-123456-7" /></div>
             </div>
           </div>
 
-          {/* Sección: CRM */}
+          {/* CRM */}
           <div>
-            <p className="text-[11px] font-semibold text-[#C9A84C] uppercase tracking-wide mb-3">CRM</p>
+            <SectionLabel>CRM</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={lbl}>Fuente del lead</label>
-                <select value={form.fuente} onChange={e => set('fuente', e.target.value as Fuente)} className={inp}>
+                <FieldLabel>Fuente del lead</FieldLabel>
+                <Sel value={form.fuente} onChange={v => set('fuente', v as Fuente)}>
                   <option value="referido">Referido</option>
                   <option value="instagram">Instagram</option>
                   <option value="web">Web</option>
                   <option value="llamada">Llamada</option>
                   <option value="whatsapp">WhatsApp</option>
                   <option value="otro">Otro</option>
-                </select>
+                </Sel>
               </div>
               <div>
-                <label className={lbl}>Estado inicial</label>
-                <select value={form.estado} onChange={e => set('estado', e.target.value as Estado)} className={inp}>
+                <FieldLabel>Estado inicial</FieldLabel>
+                <Sel value={form.estado} onChange={v => set('estado', v as Estado)}>
                   <option value="prospecto">Prospecto</option>
                   <option value="contactado">Contactado</option>
-                </select>
+                </Sel>
               </div>
               <div className="col-span-2">
-                <label className={lbl}>Notas iniciales</label>
+                <FieldLabel>Notas iniciales</FieldLabel>
                 <textarea value={form.notas_rapidas} onChange={e => set('notas_rapidas', e.target.value)}
                   rows={2} placeholder="Información relevante sobre el lead..."
-                  className={`${inp} resize-none`} />
+                  style={{ ...inpStyle, resize: 'none' }}
+                  onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border-mid)'} />
               </div>
               <div className="col-span-2">
-                <label className={lbl}>Pendientes</label>
+                <FieldLabel>Pendientes</FieldLabel>
                 <textarea value={form.pendientes} onChange={e => set('pendientes', e.target.value)}
                   rows={2} placeholder="Tareas o acciones pendientes..."
-                  className={`${inp} resize-none`} />
+                  style={{ ...inpStyle, resize: 'none' }}
+                  onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border-mid)'} />
               </div>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-2 pb-1">
             <button type="button" onClick={onClose}
-              className="flex-1 text-[13px] border border-[#E8E6E0] text-[#6B6B6B] py-2.5 rounded-xl hover:bg-[#F5F3EE] transition-all">
+              className="flex-1 text-[13px] py-2.5 rounded-xl transition-all"
+              style={{ border: '1px solid var(--border-mid)', color: 'var(--text-muted)', background: 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hi)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
               Cancelar
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 text-[13px] bg-[#C9A84C] text-white py-2.5 rounded-xl hover:bg-[#b8963f] disabled:opacity-50 transition-all font-medium">
+              className="flex-1 btn-gold disabled:opacity-50">
               {loading ? 'Guardando...' : 'Crear lead'}
             </button>
           </div>

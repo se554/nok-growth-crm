@@ -21,7 +21,7 @@ export default function HojaDeVida({ eventos }: Props) {
   if (!eventos.length) {
     return (
       <div className="flex items-center justify-center py-8">
-        <p className="text-[13px] text-[#6B6B6B]">Sin eventos registrados aún.</p>
+        <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>Sin eventos registrados aún.</p>
       </div>
     )
   }
@@ -37,57 +37,62 @@ export default function HojaDeVida({ eventos }: Props) {
 
         return (
           <div key={evento.id} className="flex gap-3">
-            {/* Línea de tiempo */}
+            {/* Timeline */}
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-[#F5F3EE] border border-[#E8E6E0] flex items-center justify-center text-[14px] shrink-0">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[14px] shrink-0"
+                style={{ background: 'var(--surface-hi)', border: '1px solid var(--border)' }}>
                 {EVENTO_ICONS[evento.tipo]}
               </div>
               {i < eventos.length - 1 && (
-                <div className="w-px flex-1 bg-[#E8E6E0] mt-1 min-h-[12px]" />
+                <div className="w-px flex-1 mt-1 min-h-[12px]" style={{ background: 'var(--border-mid)' }} />
               )}
             </div>
 
-            {/* Contenido */}
+            {/* Content */}
             <div className="flex-1 pb-3">
               <div className="flex items-center justify-between mb-0.5">
-                <span className="text-[11px] font-medium text-[#6B6B6B]">
+                <span className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
                   {EVENTO_LABELS[evento.tipo]}
                 </span>
-                <span className="text-[11px] text-[#6B6B6B]">
+                <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>
                   {formatDistanceToNow(new Date(evento.fecha), { addSuffix: true, locale: es })}
                 </span>
               </div>
 
-              {/* Cambio de estado */}
+              {/* Estado change */}
               {evento.tipo === 'estado_cambiado' && evento.estado_anterior && evento.estado_nuevo && (
                 <div className="flex items-center gap-1.5 mb-1">
                   {(() => {
-                    const sA = ESTADO_STYLES[evento.estado_anterior] ?? { bg:'bg-gray-100',text:'text-gray-500',border:'border-gray-200',label:evento.estado_anterior }
-                    const sN = ESTADO_STYLES[evento.estado_nuevo] ?? { bg:'bg-gray-100',text:'text-gray-500',border:'border-gray-200',label:evento.estado_nuevo }
+                    const sA = ESTADO_STYLES[evento.estado_anterior] ?? { bg:'bg-white/5',text:'text-white/40',border:'border-white/10',label:evento.estado_anterior }
+                    const sN = ESTADO_STYLES[evento.estado_nuevo] ?? { bg:'bg-white/5',text:'text-white/40',border:'border-white/10',label:evento.estado_nuevo }
                     return <>
                       <span className={clsx('text-[10px] px-2 py-0.5 rounded-full border', sA.bg, sA.text, sA.border)}>{sA.label}</span>
-                      <span className="text-[#6B6B6B] text-[10px]">→</span>
+                      <span className="text-[10px]" style={{ color: 'var(--text-dim)' }}>→</span>
                       <span className={clsx('text-[10px] px-2 py-0.5 rounded-full border', sN.bg, sN.text, sN.border)}>{sN.label}</span>
                     </>
                   })()}
                 </div>
               )}
 
-              {/* Badge fecha vencimiento para tareas */}
-              {evento.tipo === 'tarea' && vencimiento && (
+              {/* Vencimiento badge */}
+              {vencimiento && (
                 <div className="mb-1">
-                  <span className={clsx(
-                    'text-[10px] px-2 py-0.5 rounded-full border font-medium',
-                    hoy ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                    vencido ? 'bg-red-50 text-red-600 border-red-200' :
-                    'bg-green-50 text-green-700 border-green-200'
-                  )}>
-                    {hoy ? '⏰ Vence hoy' : vencido ? `⚠️ Venció ${format(vencimiento, "d MMM", { locale: es })}` : `📅 Vence ${format(vencimiento, "d MMM", { locale: es })}`}
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                    style={
+                      hoy    ? { background: 'rgba(217,119,6,0.15)', color: '#D97706', border: '1px solid rgba(217,119,6,0.3)' } :
+                      vencido ? { background: 'rgba(242,0,34,0.12)', color: '#f87171', border: '1px solid rgba(242,0,34,0.25)' } :
+                               { background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }
+                    }>
+                    {hoy ? '⏰ Vence hoy' : vencido
+                      ? `⚠️ Venció ${format(vencimiento, "d MMM", { locale: es })}`
+                      : `📅 Vence ${format(vencimiento, "d MMM", { locale: es })}`}
                   </span>
                 </div>
               )}
 
-              <p className="text-[13px] text-[#1A1A1A] leading-snug">{evento.descripcion}</p>
+              <p className="text-[13px] leading-snug" style={{ color: 'var(--text-primary)' }}>
+                {evento.descripcion}
+              </p>
 
               {/* Documento adjunto */}
               {evento.tipo === 'documento_adjunto' && evento.metadata?.doc_url && (
@@ -95,7 +100,12 @@ export default function HojaDeVida({ eventos }: Props) {
                   href={evento.metadata.doc_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-1.5 text-[11px] text-[#C9A84C] hover:text-[#b8963f] border border-[#C9A84C]/30 bg-[#C9A84C]/5 px-2.5 py-1 rounded-lg transition-all"
+                  className="inline-flex items-center gap-1.5 mt-1.5 text-[11px] px-2.5 py-1 rounded-lg transition-all"
+                  style={{
+                    color: 'var(--gold)',
+                    border: '1px solid var(--gold-mid)',
+                    background: 'var(--gold-dim)',
+                  }}
                 >
                   <Download size={11} />
                   {evento.metadata.doc_nombre ?? 'Descargar'}
@@ -103,7 +113,9 @@ export default function HojaDeVida({ eventos }: Props) {
                 </a>
               )}
 
-              <p className="text-[11px] text-[#6B6B6B] mt-0.5">{evento.autor}</p>
+              {evento.autor && (
+                <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-dim)' }}>{evento.autor}</p>
+              )}
             </div>
           </div>
         )

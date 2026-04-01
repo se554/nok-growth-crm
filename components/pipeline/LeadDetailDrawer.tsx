@@ -15,31 +15,13 @@ interface Props {
 }
 
 interface FormState {
-  nombre: string
-  cedula: string
-  nacionalidad: string
-  pais: string
-  telefono: string
-  whatsapp: string
-  email: string
-  asignado_a: string
-  banco: string
-  numero_cuenta: string
-  notas_rapidas: string
-  pendientes: string
-  propiedad: string
-  zona: string
-  proyecto: string
-  apartamento: string
-  tipo_propiedad: string
-  tipologia: string
-  numero_unidades: string
-  valor_mensual_estimado: string
-  probabilidad: string
-  fuente: string
-  prioridad: string
-  ejecucion_nok: boolean
-  presupuesto_aprobado: string
+  nombre: string; cedula: string; nacionalidad: string; pais: string
+  telefono: string; whatsapp: string; email: string; asignado_a: string
+  banco: string; numero_cuenta: string; notas_rapidas: string; pendientes: string
+  propiedad: string; zona: string; proyecto: string; apartamento: string
+  tipo_propiedad: string; tipologia: string; numero_unidades: string
+  valor_mensual_estimado: string; probabilidad: string; fuente: string
+  prioridad: string; ejecucion_nok: boolean; presupuesto_aprobado: string
 }
 
 function getInitials(nombre: string) {
@@ -49,55 +31,65 @@ function getInitials(nombre: string) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildForm(data: any): FormState {
   return {
-    nombre: data.nombre ?? '',
-    cedula: data.cedula ?? '',
-    nacionalidad: data.nacionalidad ?? '',
-    pais: data.pais ?? '',
-    telefono: data.telefono ?? '',
-    whatsapp: data.whatsapp ?? '',
-    email: data.email ?? '',
-    asignado_a: data.asignado_a ?? '',
-    banco: data.banco ?? '',
-    numero_cuenta: data.numero_cuenta ?? '',
-    notas_rapidas: data.notas_rapidas ?? '',
-    pendientes: data.pendientes ?? '',
-    propiedad: data.propiedad ?? '',
-    zona: data.zona ?? '',
-    proyecto: data.proyecto ?? '',
-    apartamento: data.apartamento ?? '',
-    tipo_propiedad: data.tipo_propiedad ?? '',
-    tipologia: data.tipologia ?? '',
+    nombre: data.nombre ?? '', cedula: data.cedula ?? '', nacionalidad: data.nacionalidad ?? '',
+    pais: data.pais ?? '', telefono: data.telefono ?? '', whatsapp: data.whatsapp ?? '',
+    email: data.email ?? '', asignado_a: data.asignado_a ?? '', banco: data.banco ?? '',
+    numero_cuenta: data.numero_cuenta ?? '', notas_rapidas: data.notas_rapidas ?? '',
+    pendientes: data.pendientes ?? '', propiedad: data.propiedad ?? '', zona: data.zona ?? '',
+    proyecto: data.proyecto ?? '', apartamento: data.apartamento ?? '',
+    tipo_propiedad: data.tipo_propiedad ?? '', tipologia: data.tipologia ?? '',
     numero_unidades: String(data.numero_unidades ?? 1),
     valor_mensual_estimado: data.valor_mensual_estimado ? String(data.valor_mensual_estimado) : '',
-    probabilidad: String(data.probabilidad ?? 50),
-    fuente: data.fuente ?? 'otro',
-    prioridad: data.prioridad ?? 'na',
-    ejecucion_nok: data.ejecucion_nok ?? false,
+    probabilidad: String(data.probabilidad ?? 50), fuente: data.fuente ?? 'otro',
+    prioridad: data.prioridad ?? 'na', ejecucion_nok: data.ejecucion_nok ?? false,
     presupuesto_aprobado: data.presupuesto_aprobado ? String(data.presupuesto_aprobado) : '',
   }
+}
+
+const inpStyle: React.CSSProperties = {
+  width: '100%',
+  fontSize: '13px',
+  background: 'var(--surface-hi)',
+  border: '1px solid var(--border-mid)',
+  borderRadius: '8px',
+  padding: '6px 10px',
+  color: 'var(--text-primary)',
+  outline: 'none',
 }
 
 function InfoGrid({ items }: { items: { label: string; value: string | null | undefined; highlight?: boolean }[] }) {
   return (
     <div className="grid grid-cols-2 gap-2">
       {items.filter(i => i.value).map(({ label, value, highlight }) => (
-        <div key={label} className="bg-[#F5F3EE] rounded-xl p-3">
-          <p className="text-[10px] text-[#6B6B6B] mb-0.5">{label}</p>
-          <p className={clsx('text-[13px] font-medium', highlight ? 'text-[#C9A84C]' : 'text-[#1A1A1A]')}>{value}</p>
+        <div key={label} className="rounded-xl p-3" style={{ background: 'var(--surface-hi)', border: '1px solid var(--border)' }}>
+          <p className="text-[10px] mb-0.5" style={{ color: 'var(--text-dim)' }}>{label}</p>
+          <p className="text-[13px] font-medium" style={{ color: highlight ? 'var(--gold)' : 'var(--text-primary)' }}>{value}</p>
         </div>
       ))}
     </div>
   )
 }
 
-const inp = "w-full bg-white border border-[#E8E6E0] rounded-lg px-2.5 py-1.5 text-[13px] text-[#1A1A1A] focus:outline-none focus:border-[#C9A84C] transition-colors"
-
 function EF({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={clsx('bg-[#F5F3EE] rounded-xl p-3', className)}>
-      <p className="text-[10px] text-[#6B6B6B] mb-0.5">{label}</p>
+    <div className={clsx('rounded-xl p-3', className)}
+      style={{ background: 'var(--surface-hi)', border: '1px solid var(--border)' }}>
+      <p className="text-[10px] mb-0.5" style={{ color: 'var(--text-dim)' }}>{label}</p>
       {children}
     </div>
+  )
+}
+
+function InpF({ value, onChange, type = 'text' }: { value: string; onChange: (v: string) => void; type?: string }) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      style={inpStyle}
+      onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+      onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}
+    />
   )
 }
 
@@ -155,30 +147,17 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: form.nombre,
-        cedula: form.cedula || null,
-        nacionalidad: form.nacionalidad || null,
-        pais: form.pais || null,
-        telefono: form.telefono || null,
-        whatsapp: form.whatsapp || null,
-        email: form.email || null,
-        asignado_a: form.asignado_a || null,
-        banco: form.banco || null,
-        numero_cuenta: form.numero_cuenta || null,
-        notas_rapidas: form.notas_rapidas || null,
-        pendientes: form.pendientes || null,
-        propiedad: form.propiedad,
-        zona: form.zona || null,
-        proyecto: form.proyecto || null,
-        apartamento: form.apartamento || null,
-        tipo_propiedad: form.tipo_propiedad || null,
-        tipologia: form.tipologia || null,
+        nombre: form.nombre, cedula: form.cedula || null, nacionalidad: form.nacionalidad || null,
+        pais: form.pais || null, telefono: form.telefono || null, whatsapp: form.whatsapp || null,
+        email: form.email || null, asignado_a: form.asignado_a || null, banco: form.banco || null,
+        numero_cuenta: form.numero_cuenta || null, notas_rapidas: form.notas_rapidas || null,
+        pendientes: form.pendientes || null, propiedad: form.propiedad, zona: form.zona || null,
+        proyecto: form.proyecto || null, apartamento: form.apartamento || null,
+        tipo_propiedad: form.tipo_propiedad || null, tipologia: form.tipologia || null,
         numero_unidades: parseInt(form.numero_unidades) || 1,
         valor_mensual_estimado: form.valor_mensual_estimado ? parseFloat(form.valor_mensual_estimado) : null,
-        probabilidad: parseInt(form.probabilidad) || 50,
-        fuente: form.fuente,
-        prioridad: form.prioridad || 'na',
-        ejecucion_nok: form.ejecucion_nok,
+        probabilidad: parseInt(form.probabilidad) || 50, fuente: form.fuente,
+        prioridad: form.prioridad || 'na', ejecucion_nok: form.ejecucion_nok,
         presupuesto_aprobado: form.presupuesto_aprobado ? parseFloat(form.presupuesto_aprobado) : null,
       }),
     })
@@ -186,11 +165,6 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
     setEditing(false)
     fetchDetalle()
     onUpdated()
-  }
-
-  const cancelar = () => {
-    fetchDetalle()
-    setEditing(false)
   }
 
   const uploadDocumento = async (file: File) => {
@@ -209,51 +183,67 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
-      <div className="absolute inset-0 bg-black/20" onClick={onClose} />
-      <div className="relative w-[500px] bg-white h-full shadow-2xl flex flex-col">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative w-[500px] h-full flex flex-col shadow-2xl"
+        style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border-mid)' }}>
 
         {/* Header */}
-        <div className="px-5 py-4 border-b border-[#E8E6E0]">
+        <div className="px-5 py-4 shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className={clsx('w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-bold', style.bg, style.text)}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-bold"
+                style={{ background: 'var(--surface-hi)', color: 'var(--text-muted)', border: '1px solid var(--border-mid)' }}>
                 {getInitials(lead.nombre)}
               </div>
               <div>
-                <h2 className="text-[15px] font-semibold text-[#1A1A1A]">{lead.nombre}</h2>
+                <h2 className="text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>{lead.nombre}</h2>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className={clsx('text-[11px] px-2 py-0.5 rounded-full border', style.bg, style.text, style.border)}>
                     {style.label}
                   </span>
                   {d.ejecucion_nok && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#C9A84C]/10 text-[#C9A84C] border border-[#C9A84C]/30 font-medium">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                      style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-mid)' }}>
                       NOK ejecuta
                     </span>
                   )}
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="p-1.5 hover:bg-[#F5F3EE] rounded-lg transition-all">
-              <X size={16} className="text-[#6B6B6B]" />
+            <button onClick={onClose}
+              className="p-1.5 rounded-lg transition-all"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hi)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <X size={16} />
             </button>
           </div>
 
           {/* Contacto rápido */}
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2 mt-3 flex-wrap">
             {lead.telefono && (
-              <a href={`tel:${lead.telefono}`} className="flex items-center gap-1.5 text-[11px] text-[#6B6B6B] hover:text-[#C9A84C] border border-[#E8E6E0] px-2.5 py-1.5 rounded-lg transition-all">
+              <a href={`tel:${lead.telefono}`}
+                className="flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg transition-all"
+                style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--gold)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
                 <Phone size={12} /> {lead.telefono}
               </a>
             )}
             {d.whatsapp && (
               <a href={`https://wa.me/${(d.whatsapp ?? '').replace(/\D/g,'')}`}
                 target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-[11px] text-green-600 hover:text-green-700 border border-green-200 px-2.5 py-1.5 rounded-lg transition-all">
+                className="flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg transition-all"
+                style={{ color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}>
                 <MessageCircle size={12} /> WhatsApp
               </a>
             )}
             {lead.email && (
-              <a href={`mailto:${lead.email}`} className="flex items-center gap-1.5 text-[11px] text-[#6B6B6B] hover:text-[#C9A84C] border border-[#E8E6E0] px-2.5 py-1.5 rounded-lg transition-all">
+              <a href={`mailto:${lead.email}`}
+                className="flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg transition-all"
+                style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--gold)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
                 <Mail size={12} /> Email
               </a>
             )}
@@ -263,21 +253,25 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
           <div className="flex gap-2 mt-3">
             {next && (
               <button onClick={() => cambiarEstado(next)} disabled={updatingEstado}
-                className="flex items-center gap-1 text-[12px] bg-[#C9A84C] text-white px-3 py-1.5 rounded-lg hover:bg-[#b8963f] disabled:opacity-50 transition-all">
+                className="flex items-center gap-1 text-[12px] px-3 py-1.5 rounded-lg disabled:opacity-50 transition-all"
+                style={{ background: 'var(--gold)', color: '#1D1D1B' }}>
                 Mover a {ESTADO_STYLES[next]?.label} <ChevronRight size={13} />
               </button>
             )}
             {lead.estado !== 'perdido' && lead.estado !== 'cerrado' && (
               <button onClick={marcarPerdido} disabled={updatingEstado}
-                className="text-[12px] text-red-500 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-all">
+                className="text-[12px] px-3 py-1.5 rounded-lg disabled:opacity-50 transition-all"
+                style={{ color: '#f87171', border: '1px solid rgba(242,0,34,0.25)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(242,0,34,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                 Marcar perdido
               </button>
             )}
           </div>
         </div>
 
-        {/* Tabs + botón editar */}
-        <div className="flex items-center border-b border-[#E8E6E0] px-5">
+        {/* Tabs */}
+        <div className="flex items-center px-5 shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="flex flex-1">
             {([
               { id: 'hoja', label: 'Hoja de vida' },
@@ -285,35 +279,41 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
               { id: 'propiedad', label: 'Propiedad' },
             ] as const).map(t => (
               <button key={t.id} onClick={() => { setTab(t.id); setEditing(false) }}
-                className={clsx('py-3 px-1 mr-4 text-[12px] border-b-2 transition-all',
-                  tab === t.id ? 'border-[#C9A84C] text-[#1A1A1A] font-medium' : 'border-transparent text-[#6B6B6B] hover:text-[#1A1A1A]'
-                )}>
+                className="py-3 px-1 mr-4 text-[12px] border-b-2 transition-all"
+                style={{
+                  borderBottomColor: tab === t.id ? 'var(--gold)' : 'transparent',
+                  color: tab === t.id ? 'var(--text-primary)' : 'var(--text-muted)',
+                  fontWeight: tab === t.id ? 500 : 400,
+                }}>
                 {t.label}
               </button>
             ))}
           </div>
           {tab !== 'hoja' && !editing && (
             <button onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 text-[11px] text-[#6B6B6B] hover:text-[#C9A84C] border border-[#E8E6E0] px-2.5 py-1.5 rounded-lg transition-all">
+              className="flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg transition-all"
+              style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--gold)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
               <Pencil size={11} /> Editar
             </button>
           )}
         </div>
 
-        {/* Contenido */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
 
-          {/* TAB: Hoja de vida */}
+          {/* Hoja de vida */}
           {tab === 'hoja' && (
             <div className="space-y-5">
-              <div className="bg-[#F5F3EE] rounded-xl p-4">
-                <p className="text-[12px] font-medium text-[#1A1A1A] mb-3">Registrar actividad</p>
+              <div className="rounded-xl p-4" style={{ background: 'var(--surface-el)', border: '1px solid var(--border)' }}>
+                <p className="text-[12px] font-medium mb-3" style={{ color: 'var(--text-primary)' }}>Registrar actividad</p>
                 <EventoForm leadId={lead.id} onEventoAdded={fetchDetalle} />
               </div>
 
               {/* Adjuntar documento */}
-              <div className="bg-[#F5F3EE] rounded-xl p-4">
-                <p className="text-[12px] font-medium text-[#1A1A1A] mb-2">Adjuntar contrato / documento</p>
+              <div className="rounded-xl p-4" style={{ background: 'var(--surface-el)', border: '1px solid var(--border)' }}>
+                <p className="text-[12px] font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Adjuntar contrato / documento</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -329,7 +329,10 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="flex items-center gap-2 text-[12px] text-[#6B6B6B] border border-dashed border-[#C9A84C]/50 hover:border-[#C9A84C] hover:text-[#C9A84C] bg-white rounded-xl px-4 py-3 w-full transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 text-[12px] w-full rounded-xl px-4 py-3 transition-all disabled:opacity-50"
+                  style={{ color: 'var(--text-muted)', border: '1px dashed var(--border-mid)', background: 'transparent' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.color = 'var(--gold)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-mid)'; e.currentTarget.style.color = 'var(--text-muted)' }}
                 >
                   {uploading ? (
                     <><Upload size={13} className="animate-bounce" /> Subiendo...</>
@@ -338,14 +341,15 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                   )}
                 </button>
               </div>
+
               {loading ? (
                 <div className="space-y-3">
                   {[1,2,3].map(i => (
                     <div key={i} className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#E8E6E0] animate-pulse shrink-0" />
+                      <div className="w-8 h-8 rounded-full animate-pulse shrink-0" style={{ background: 'var(--surface-hi)' }} />
                       <div className="flex-1 space-y-1.5">
-                        <div className="h-3 bg-[#E8E6E0] rounded animate-pulse w-24" />
-                        <div className="h-4 bg-[#E8E6E0] rounded animate-pulse" />
+                        <div className="h-3 rounded animate-pulse w-24" style={{ background: 'var(--surface-hi)' }} />
+                        <div className="h-4 rounded animate-pulse" style={{ background: 'var(--surface-hi)' }} />
                       </div>
                     </div>
                   ))}
@@ -356,61 +360,49 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
             </div>
           )}
 
-          {/* TAB: Propietario */}
+          {/* Propietario */}
           {tab === 'propietario' && (
             <div className="space-y-4">
               {editing ? (
                 <>
                   <div className="grid grid-cols-2 gap-2">
-                    <EF label="Nombre completo" className="col-span-2">
-                      <input className={inp} value={form.nombre} onChange={e => setF('nombre', e.target.value)} />
-                    </EF>
-                    <EF label="Cédula / Pasaporte">
-                      <input className={inp} value={form.cedula} onChange={e => setF('cedula', e.target.value)} />
-                    </EF>
-                    <EF label="Nacionalidad">
-                      <input className={inp} value={form.nacionalidad} onChange={e => setF('nacionalidad', e.target.value)} />
-                    </EF>
-                    <EF label="País de residencia">
-                      <input className={inp} value={form.pais} onChange={e => setF('pais', e.target.value)} />
-                    </EF>
-                    <EF label="Asignado a">
-                      <input className={inp} value={form.asignado_a} onChange={e => setF('asignado_a', e.target.value)} />
-                    </EF>
-                    <EF label="Teléfono">
-                      <input className={inp} value={form.telefono} onChange={e => setF('telefono', e.target.value)} />
-                    </EF>
-                    <EF label="WhatsApp">
-                      <input className={inp} value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} />
-                    </EF>
-                    <EF label="Email" className="col-span-2">
-                      <input className={inp} value={form.email} onChange={e => setF('email', e.target.value)} />
-                    </EF>
+                    <EF label="Nombre completo" className="col-span-2"><InpF value={form.nombre} onChange={v => setF('nombre', v)} /></EF>
+                    <EF label="Cédula / Pasaporte"><InpF value={form.cedula} onChange={v => setF('cedula', v)} /></EF>
+                    <EF label="Nacionalidad"><InpF value={form.nacionalidad} onChange={v => setF('nacionalidad', v)} /></EF>
+                    <EF label="País de residencia"><InpF value={form.pais} onChange={v => setF('pais', v)} /></EF>
+                    <EF label="Asignado a"><InpF value={form.asignado_a} onChange={v => setF('asignado_a', v)} /></EF>
+                    <EF label="Teléfono"><InpF value={form.telefono} onChange={v => setF('telefono', v)} /></EF>
+                    <EF label="WhatsApp"><InpF value={form.whatsapp} onChange={v => setF('whatsapp', v)} /></EF>
+                    <EF label="Email" className="col-span-2"><InpF value={form.email} onChange={v => setF('email', v)} /></EF>
                   </div>
 
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <p className="text-[11px] font-semibold text-amber-700 mb-2">Datos bancarios</p>
+                  <div className="rounded-xl p-4" style={{ background: 'rgba(214,167,0,0.06)', border: '1px solid rgba(214,167,0,0.2)' }}>
+                    <p className="text-[11px] font-semibold mb-2" style={{ color: 'var(--gold)' }}>Datos bancarios</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <p className="text-[10px] text-amber-600 mb-0.5">Banco</p>
-                        <input className={inp} value={form.banco} onChange={e => setF('banco', e.target.value)} />
+                        <p className="text-[10px] mb-0.5" style={{ color: 'var(--text-dim)' }}>Banco</p>
+                        <InpF value={form.banco} onChange={v => setF('banco', v)} />
                       </div>
                       <div>
-                        <p className="text-[10px] text-amber-600 mb-0.5">Número de cuenta</p>
-                        <input className={inp} value={form.numero_cuenta} onChange={e => setF('numero_cuenta', e.target.value)} />
+                        <p className="text-[10px] mb-0.5" style={{ color: 'var(--text-dim)' }}>Número de cuenta</p>
+                        <InpF value={form.numero_cuenta} onChange={v => setF('numero_cuenta', v)} />
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-[#F5F3EE] border border-[#E8E6E0] rounded-xl p-3">
-                    <p className="text-[10px] text-[#6B6B6B] mb-1">Notas</p>
-                    <textarea className={clsx(inp, 'resize-none')} rows={3}
-                      value={form.notas_rapidas} onChange={e => setF('notas_rapidas', e.target.value)} />
+                  <div className="rounded-xl p-3" style={{ background: 'var(--surface-el)', border: '1px solid var(--border)' }}>
+                    <p className="text-[10px] mb-1" style={{ color: 'var(--text-dim)' }}>Notas</p>
+                    <textarea style={{ ...inpStyle, resize: 'none' }} rows={3}
+                      value={form.notas_rapidas} onChange={e => setF('notas_rapidas', e.target.value)}
+                      onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--border-mid)'} />
                   </div>
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                    <p className="text-[10px] text-amber-600 mb-1 font-semibold">Pendientes</p>
-                    <textarea className={clsx(inp, 'resize-none')} rows={2}
-                      value={form.pendientes} onChange={e => setF('pendientes', e.target.value)} />
+                  <div className="rounded-xl p-3" style={{ background: 'rgba(214,167,0,0.06)', border: '1px solid rgba(214,167,0,0.2)' }}>
+                    <p className="text-[10px] mb-1 font-semibold" style={{ color: 'var(--gold)' }}>Pendientes</p>
+                    <textarea style={{ ...inpStyle, resize: 'none' }} rows={2}
+                      value={form.pendientes} onChange={e => setF('pendientes', e.target.value)}
+                      onFocus={e => e.target.style.borderColor = 'var(--gold)'}
+                      onBlur={e => e.target.style.borderColor = 'var(--border-mid)'} />
                   </div>
                 </>
               ) : (
@@ -427,34 +419,24 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                   ]} />
 
                   {(d.banco || d.numero_cuenta) && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <p className="text-[11px] font-semibold text-amber-700 mb-2">Datos bancarios</p>
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(214,167,0,0.06)', border: '1px solid rgba(214,167,0,0.2)' }}>
+                      <p className="text-[11px] font-semibold mb-2" style={{ color: 'var(--gold)' }}>Datos bancarios</p>
                       <div className="grid grid-cols-2 gap-2">
-                        {d.banco && (
-                          <div>
-                            <p className="text-[10px] text-amber-600">Banco</p>
-                            <p className="text-[13px] font-medium text-[#1A1A1A]">{d.banco}</p>
-                          </div>
-                        )}
-                        {d.numero_cuenta && (
-                          <div>
-                            <p className="text-[10px] text-amber-600">Número de cuenta</p>
-                            <p className="text-[13px] font-medium text-[#1A1A1A]">{d.numero_cuenta}</p>
-                          </div>
-                        )}
+                        {d.banco && <div><p className="text-[10px]" style={{ color: 'var(--text-dim)' }}>Banco</p><p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{d.banco}</p></div>}
+                        {d.numero_cuenta && <div><p className="text-[10px]" style={{ color: 'var(--text-dim)' }}>Cuenta</p><p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{d.numero_cuenta}</p></div>}
                       </div>
                     </div>
                   )}
                   {d.notas_rapidas && (
-                    <div className="bg-[#F5F3EE] border border-[#E8E6E0] rounded-xl p-3">
-                      <p className="text-[10px] text-[#6B6B6B] mb-1">Notas</p>
-                      <p className="text-[13px] text-[#1A1A1A]">{d.notas_rapidas}</p>
+                    <div className="rounded-xl p-3" style={{ background: 'var(--surface-el)', border: '1px solid var(--border)' }}>
+                      <p className="text-[10px] mb-1" style={{ color: 'var(--text-dim)' }}>Notas</p>
+                      <p className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{d.notas_rapidas}</p>
                     </div>
                   )}
                   {d.pendientes && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                      <p className="text-[10px] text-amber-600 mb-1 font-semibold">Pendientes</p>
-                      <p className="text-[13px] text-[#1A1A1A]">{d.pendientes}</p>
+                    <div className="rounded-xl p-3" style={{ background: 'rgba(214,167,0,0.06)', border: '1px solid rgba(214,167,0,0.2)' }}>
+                      <p className="text-[10px] mb-1 font-semibold" style={{ color: 'var(--gold)' }}>Pendientes</p>
+                      <p className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{d.pendientes}</p>
                     </div>
                   )}
                 </>
@@ -462,71 +444,52 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
             </div>
           )}
 
-          {/* TAB: Propiedad */}
+          {/* Propiedad */}
           {tab === 'propiedad' && (
             <div className="space-y-4">
               {editing ? (
                 <>
                   <div className="grid grid-cols-2 gap-2">
-                    <EF label="Nombre de la propiedad" className="col-span-2">
-                      <input className={inp} value={form.propiedad} onChange={e => setF('propiedad', e.target.value)} />
-                    </EF>
-                    <EF label="Proyecto">
-                      <input className={inp} value={form.proyecto} onChange={e => setF('proyecto', e.target.value)} />
-                    </EF>
-                    <EF label="Apartamento / Unidad">
-                      <input className={inp} value={form.apartamento} onChange={e => setF('apartamento', e.target.value)} />
-                    </EF>
+                    <EF label="Nombre de la propiedad" className="col-span-2"><InpF value={form.propiedad} onChange={v => setF('propiedad', v)} /></EF>
+                    <EF label="Proyecto"><InpF value={form.proyecto} onChange={v => setF('proyecto', v)} /></EF>
+                    <EF label="Apartamento / Unidad"><InpF value={form.apartamento} onChange={v => setF('apartamento', v)} /></EF>
                     <EF label="Zona">
-                      <select className={inp} value={form.zona} onChange={e => setF('zona', e.target.value)}>
+                      <select style={{ ...inpStyle, colorScheme: 'dark' }} value={form.zona} onChange={e => setF('zona', e.target.value)}
+                        onFocus={e => e.target.style.borderColor = 'var(--gold)'} onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}>
                         <option value="">Sin zona</option>
                         {ZONAS.map(z => <option key={z} value={z}>{z}</option>)}
                       </select>
                     </EF>
-                    <EF label="País">
-                      <input className={inp} value={form.pais} onChange={e => setF('pais', e.target.value)} />
-                    </EF>
+                    <EF label="País"><InpF value={form.pais} onChange={v => setF('pais', v)} /></EF>
                     <EF label="Tipo de propiedad">
-                      <select className={inp} value={form.tipo_propiedad} onChange={e => setF('tipo_propiedad', e.target.value)}>
+                      <select style={{ ...inpStyle, colorScheme: 'dark' }} value={form.tipo_propiedad} onChange={e => setF('tipo_propiedad', e.target.value)}
+                        onFocus={e => e.target.style.borderColor = 'var(--gold)'} onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}>
                         <option value="">Sin tipo</option>
-                        {Object.entries(TIPO_PROPIEDAD_LABELS).map(([k, v]) => (
-                          <option key={k} value={k}>{v}</option>
-                        ))}
+                        {Object.entries(TIPO_PROPIEDAD_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                       </select>
                     </EF>
                     <EF label="Tipología">
-                      <select className={inp} value={form.tipologia} onChange={e => setF('tipologia', e.target.value)}>
+                      <select style={{ ...inpStyle, colorScheme: 'dark' }} value={form.tipologia} onChange={e => setF('tipologia', e.target.value)}
+                        onFocus={e => e.target.style.borderColor = 'var(--gold)'} onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}>
                         <option value="">Sin tipología</option>
-                        {Object.entries(TIPOLOGIA_LABELS).map(([k, v]) => (
-                          <option key={k} value={k}>{v}</option>
-                        ))}
+                        {Object.entries(TIPOLOGIA_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                       </select>
                     </EF>
-                    <EF label="Nº de unidades">
-                      <input type="number" min="1" className={inp} value={form.numero_unidades}
-                        onChange={e => setF('numero_unidades', e.target.value)} />
-                    </EF>
-                    <EF label="Valor mensual estimado ($)">
-                      <input type="number" className={inp} value={form.valor_mensual_estimado}
-                        onChange={e => setF('valor_mensual_estimado', e.target.value)} />
-                    </EF>
-                    <EF label="Probabilidad de cierre (%)">
-                      <input type="number" min="0" max="100" className={inp} value={form.probabilidad}
-                        onChange={e => setF('probabilidad', e.target.value)} />
-                    </EF>
-                    <EF label="Presupuesto aprobado ($)">
-                      <input type="number" className={inp} value={form.presupuesto_aprobado}
-                        onChange={e => setF('presupuesto_aprobado', e.target.value)} />
-                    </EF>
+                    <EF label="Nº de unidades"><InpF type="number" value={form.numero_unidades} onChange={v => setF('numero_unidades', v)} /></EF>
+                    <EF label="Valor mensual estimado ($)"><InpF type="number" value={form.valor_mensual_estimado} onChange={v => setF('valor_mensual_estimado', v)} /></EF>
+                    <EF label="Probabilidad de cierre (%)"><InpF type="number" value={form.probabilidad} onChange={v => setF('probabilidad', v)} /></EF>
+                    <EF label="Presupuesto aprobado ($)"><InpF type="number" value={form.presupuesto_aprobado} onChange={v => setF('presupuesto_aprobado', v)} /></EF>
                     <EF label="Fuente del lead">
-                      <select className={inp} value={form.fuente} onChange={e => setF('fuente', e.target.value)}>
+                      <select style={{ ...inpStyle, colorScheme: 'dark' }} value={form.fuente} onChange={e => setF('fuente', e.target.value)}
+                        onFocus={e => e.target.style.borderColor = 'var(--gold)'} onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}>
                         {['referido','instagram','web','llamada','whatsapp','otro'].map(f => (
                           <option key={f} value={f}>{f.charAt(0).toUpperCase() + f.slice(1)}</option>
                         ))}
                       </select>
                     </EF>
                     <EF label="Prioridad">
-                      <select className={inp} value={form.prioridad} onChange={e => setF('prioridad', e.target.value)}>
+                      <select style={{ ...inpStyle, colorScheme: 'dark' }} value={form.prioridad} onChange={e => setF('prioridad', e.target.value)}
+                        onFocus={e => e.target.style.borderColor = 'var(--gold)'} onBlur={e => e.target.style.borderColor = 'var(--border-mid)'}>
                         <option value="alta">Alta</option>
                         <option value="media">Media</option>
                         <option value="baja">Baja</option>
@@ -535,15 +498,13 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                     </EF>
                   </div>
 
-                  <div
-                    className={clsx('rounded-xl p-4 border cursor-pointer transition-all',
-                      form.ejecucion_nok ? 'bg-[#C9A84C]/10 border-[#C9A84C]/30' : 'bg-[#F5F3EE] border-[#E8E6E0]'
-                    )}
-                    onClick={() => setF('ejecucion_nok', !form.ejecucion_nok)}
-                  >
+                  <div className="rounded-xl p-4 cursor-pointer transition-all"
+                    style={{ background: form.ejecucion_nok ? 'var(--gold-dim)' : 'var(--surface-el)', border: `1px solid ${form.ejecucion_nok ? 'var(--gold-mid)' : 'var(--border)'}` }}
+                    onClick={() => setF('ejecucion_nok', !form.ejecucion_nok)}>
                     <div className="flex items-center gap-2">
-                      <div className={clsx('w-3 h-3 rounded-full transition-colors', form.ejecucion_nok ? 'bg-[#C9A84C]' : 'bg-[#6B6B6B]')} />
-                      <p className="text-[13px] font-medium text-[#1A1A1A]">
+                      <div className="w-3 h-3 rounded-full transition-colors"
+                        style={{ background: form.ejecucion_nok ? 'var(--gold)' : 'var(--text-dim)' }} />
+                      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
                         {form.ejecucion_nok ? 'NOK ejecuta la compra de esta propiedad' : 'El propietario gestiona la propiedad'}
                       </p>
                     </div>
@@ -551,21 +512,22 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                 </>
               ) : (
                 <>
-                  <div className="bg-[#F5F3EE] rounded-xl p-4 flex gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-[#E8E6E0] flex items-center justify-center shrink-0">
-                      <Building2 size={18} className="text-[#C9A84C]" />
+                  <div className="rounded-xl p-4 flex gap-3" style={{ background: 'var(--surface-el)', border: '1px solid var(--border)' }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: 'var(--surface-hi)', border: '1px solid var(--border)' }}>
+                      <Building2 size={18} style={{ color: 'var(--gold)' }} />
                     </div>
                     <div>
-                      <p className="text-[14px] font-semibold text-[#1A1A1A]">{d.propiedad}</p>
-                      <p className="text-[12px] text-[#6B6B6B]">{d.zona ?? ''}{d.zona && d.pais ? ' · ' : ''}{d.pais}</p>
+                      <p className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>{d.propiedad}</p>
+                      <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>{d.zona ?? ''}{d.zona && d.pais ? ' · ' : ''}{d.pais}</p>
                     </div>
                   </div>
 
                   <InfoGrid items={[
                     { label: 'Proyecto', value: d.proyecto },
                     { label: 'Apartamento / Unidad', value: d.apartamento },
-                    { label: 'Tipo de propiedad', value: d.tipo_propiedad ? (TIPO_PROPIEDAD_LABELS as Record<string, string>)[d.tipo_propiedad] : null },
-                    { label: 'Tipología', value: d.tipologia ? (TIPOLOGIA_LABELS as Record<string, string>)[d.tipologia] : null },
+                    { label: 'Tipo de propiedad', value: d.tipo_propiedad ? (TIPO_PROPIEDAD_LABELS as Record<string,string>)[d.tipo_propiedad] : null },
+                    { label: 'Tipología', value: d.tipologia ? (TIPOLOGIA_LABELS as Record<string,string>)[d.tipologia] : null },
                     { label: 'Zona', value: d.zona },
                     { label: 'País', value: d.pais },
                     { label: 'Número de unidades', value: String(d.numero_unidades) },
@@ -577,10 +539,10 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                     { label: 'Prioridad', value: d.prioridad ? (d.prioridad.charAt(0).toUpperCase() + d.prioridad.slice(1)) : null },
                   ]} />
 
-                  <div className={clsx('rounded-xl p-4 border', d.ejecucion_nok ? 'bg-[#C9A84C]/10 border-[#C9A84C]/30' : 'bg-[#F5F3EE] border-[#E8E6E0]')}>
+                  <div className="rounded-xl p-4" style={{ background: d.ejecucion_nok ? 'var(--gold-dim)' : 'var(--surface-el)', border: `1px solid ${d.ejecucion_nok ? 'var(--gold-mid)' : 'var(--border)'}` }}>
                     <div className="flex items-center gap-2">
-                      <div className={clsx('w-3 h-3 rounded-full', d.ejecucion_nok ? 'bg-[#C9A84C]' : 'bg-[#6B6B6B]')} />
-                      <p className="text-[13px] font-medium text-[#1A1A1A]">
+                      <div className="w-3 h-3 rounded-full" style={{ background: d.ejecucion_nok ? 'var(--gold)' : 'var(--text-dim)' }} />
+                      <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
                         {d.ejecucion_nok ? 'NOK ejecuta la compra de esta propiedad' : 'El propietario gestiona la propiedad'}
                       </p>
                     </div>
@@ -591,15 +553,19 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
           )}
         </div>
 
-        {/* Footer guardar/cancelar */}
+        {/* Footer */}
         {editing && (
-          <div className="px-5 py-3 border-t border-[#E8E6E0] flex gap-2 bg-white">
+          <div className="px-5 py-3 flex gap-2 shrink-0"
+            style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
             <button onClick={guardar} disabled={saving}
-              className="flex-1 text-[13px] font-medium bg-[#C9A84C] text-white py-2 rounded-lg hover:bg-[#b8963f] disabled:opacity-50 transition-all">
+              className="flex-1 btn-gold disabled:opacity-50">
               {saving ? 'Guardando...' : 'Guardar cambios'}
             </button>
-            <button onClick={cancelar}
-              className="text-[13px] text-[#6B6B6B] border border-[#E8E6E0] px-4 py-2 rounded-lg hover:bg-[#F5F3EE] transition-all">
+            <button onClick={() => { fetchDetalle(); setEditing(false) }}
+              className="text-[13px] px-4 py-2 rounded-lg transition-all"
+              style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hi)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
               Cancelar
             </button>
           </div>

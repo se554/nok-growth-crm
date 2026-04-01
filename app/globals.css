@@ -2,74 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
 :root {
-  /* Paleta NOK extraída de nok.rent */
-  --nok-bg:           #f7f7f3;
-  --nok-black:        #1d1d1b;
-  --nok-green-dark:   #0b2922;
-  --nok-green:        #193125;
-  --nok-gold:         #d6a700;
-  --nok-earth:        #833b0e;
-  --nok-gray:         #6c6c6c;
-  --nok-border:       #d4d4d4;
+  /* NOK Dark Brand System */
+  --bg:            #1D1D1B;
+  --surface:       #141413;
+  --surface-mid:   #1a1a18;
+  --surface-el:    #222220;
+  --surface-hi:    #2a2a28;
+  --border:        rgba(242,242,242,0.08);
+  --border-mid:    rgba(242,242,242,0.12);
+  --border-hi:     rgba(242,242,242,0.18);
 
-  --background: var(--nok-bg);
-  --foreground: var(--nok-black);
+  --text-primary:  #F2F2F2;
+  --text-muted:    rgba(242,242,242,0.45);
+  --text-dim:      rgba(242,242,242,0.25);
+
+  --gold:          #D6A700;
+  --gold-dim:      rgba(214,167,0,0.15);
+  --gold-mid:      rgba(214,167,0,0.25);
+  --gold-bright:   #E8BC1A;
+
+  --blue:          #0080C6;
+  --purple:        #4D439E;
+  --serenity:      #B9B5DC;
+  --success:       #0E6845;
+  --danger:        #F20022;
+  --danger-dim:    rgba(242,0,34,0.15);
+  --amber:         #D97706;
+  --amber-dim:     rgba(217,119,6,0.15);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
+
+html { color-scheme: dark; }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* Scrollbar sutil estilo NOK */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #d6a700;
+.font-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Transición NOK — springy */
-.transition-nok {
-  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+/* Gold glow card hover */
+.card-hover {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
 }
-
-/* Botón primario NOK */
-.btn-nok-primary {
-  background-color: var(--nok-earth);
-  color: white;
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  border: none;
-  cursor: pointer;
-}
-.btn-nok-primary:hover {
-  background-color: var(--nok-gold);
-  color: var(--nok-black);
+.card-hover:hover {
+  box-shadow: 0 4px 20px rgba(214,167,0,0.12), 0 1px 4px rgba(0,0,0,0.4);
+  border-color: rgba(214,167,0,0.3) !important;
   transform: translateY(-1px);
 }
+
+/* NOK button primary */
+.btn-gold {
+  background: var(--gold);
+  color: #1D1D1B;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 9px 18px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+.btn-gold:hover {
+  background: var(--gold-bright);
+  box-shadow: 0 4px 16px rgba(214,167,0,0.3);
+}
+.btn-gold:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Smooth transitions */
+.t-smooth { transition: all 0.2s cubic-bezier(0.4,0,0.2,1); }
+.t-spring { transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1); }
