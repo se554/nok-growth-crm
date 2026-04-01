@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Plus, Search, X } from 'lucide-react'
+import { Plus, Search, X, FileText } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { LeadConActividad, PipelineMetrics } from '@/lib/types'
 import { ESTADO_STYLES } from '@/lib/types'
@@ -32,6 +32,8 @@ function PipelinePageInner() {
   const [search, setSearch] = useState('')
   const [allLeads, setAllLeads] = useState<LeadConActividad[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
+  const [generandoReporte, setGenerandoReporte] = useState(false)
+  const [reporteEnviado, setReporteEnviado] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const searchParams = useSearchParams()
 
@@ -82,6 +84,15 @@ function PipelinePageInner() {
         l.propiedad?.toLowerCase().includes(q)
       ).slice(0, 6)
     : []
+
+  const generarReporte = async () => {
+    setGenerandoReporte(true)
+    setReporteEnviado(false)
+    await fetch('/api/reporte/generar', { method: 'POST' })
+    setGenerandoReporte(false)
+    setReporteEnviado(true)
+    setTimeout(() => setReporteEnviado(false), 5000)
+  }
 
   const openLead = (lead: LeadConActividad) => {
     setSelectedLead(lead)
@@ -171,6 +182,16 @@ function PipelinePageInner() {
                 </div>
               )}
             </div>
+
+            <button
+              onClick={generarReporte}
+              disabled={generandoReporte}
+              className="flex items-center gap-2 text-[13px] font-medium px-3 py-2 rounded-[10px] transition-all shrink-0 border disabled:opacity-50"
+              style={{ borderColor: reporteEnviado ? '#16A34A' : '#d4d4d4', color: reporteEnviado ? '#16A34A' : '#6c6c6c', backgroundColor: 'white' }}
+            >
+              <FileText size={14} />
+              {generandoReporte ? 'Generando...' : reporteEnviado ? '✓ Enviado' : 'Reporte'}
+            </button>
 
             <button
               onClick={() => setShowAddModal(true)}
