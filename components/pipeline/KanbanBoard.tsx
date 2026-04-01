@@ -22,10 +22,11 @@ interface Props {
   onLeadClick: (lead: LeadConActividad) => void
   filterPais?: string
   filterProyecto?: string
+  filterSearch?: string
 }
 
-export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }: Props) {
-  const [leads, setLeads] = useState<LeadConActividad[]>([])
+export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, filterSearch }: Props) {
+  const [allLeads, setAllLeads] = useState<LeadConActividad[]>([])
   const [loading, setLoading] = useState(true)
   const [activeLead, setActiveLead] = useState<LeadConActividad | null>(null)
   const isDragging = activeLead !== null
@@ -38,11 +39,10 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }:
     const res = await fetch(`/api/leads${qs ? '?' + qs : ''}`)
     if (res.ok) {
       const data = await res.json()
-      // Deduplicar por id por si acaso
       const unique: LeadConActividad[] = Array.from(
         new Map((data as LeadConActividad[]).map((l) => [l.id, l])).values()
       )
-      setLeads(unique)
+      setAllLeads(unique)
     }
     setLoading(false)
   }, [filterPais, filterProyecto])
@@ -50,6 +50,18 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto }:
   useEffect(() => {
     fetchLeads()
   }, [fetchLeads, filterPais, filterProyecto])
+
+  // Filtro client-side por búsqueda de texto
+  const q = (filterSearch ?? '').toLowerCase().trim()
+  const leads = q
+    ? allLeads.filter(l =>
+        l.nombre?.toLowerCase().includes(q) ||
+        (l as any).apartamento?.toLowerCase().includes(q) ||
+        (l as any).zona?.toLowerCase().includes(q) ||
+        (l as any).proyecto?.toLowerCase().includes(q) ||
+        l.propiedad?.toLowerCase().includes(q)
+      )
+    : allLeads
 
   // Supabase Realtime — no refrescar mientras hay un drag activo
   useEffect(() => {
