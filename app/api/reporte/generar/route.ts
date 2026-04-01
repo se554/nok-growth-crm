@@ -6,7 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const DESTINATARIOS = ['se@nok.rent', 'msl@nok.rent']
+const DESTINATARIOS = ['se@nok.rent']
 
 async function recopilarDatos() {
   const now = Date.now()
@@ -271,7 +271,7 @@ export async function POST() {
     const html = generarHTML(datos, insights, fecha)
 
     const { error } = await resend.emails.send({
-      from: 'NOK CRM <reporte@nok.rent>',
+      from: 'NOK CRM <onboarding@resend.dev>',
       to: DESTINATARIOS,
       subject: `NOK CRM — Reporte Semanal ${new Date().toLocaleDateString('es-DO', { day: 'numeric', month: 'short' })}`,
       html,
