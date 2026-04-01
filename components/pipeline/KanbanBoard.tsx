@@ -83,7 +83,7 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     leads.filter((l) => l.estado === estado)
 
   const handleDragStart = (event: DragStartEvent) => {
-    const lead = leads.find((l) => l.id === event.active.id)
+    const lead = allLeads.find((l) => l.id === event.active.id)
     setActiveLead(lead ?? null)
   }
 
@@ -94,21 +94,21 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     const activeId = active.id as string
     const overId = over.id as string
 
-    const activeLead = leads.find((l) => l.id === activeId)
+    const activeLead = allLeads.find((l) => l.id === activeId)
     if (!activeLead) return
 
     // Si cayó sobre una columna (estado)
     const overEstado = ESTADOS_ORDEN.includes(overId as Estado) ? (overId as Estado) : null
     if (overEstado && activeLead.estado !== overEstado) {
-      setLeads((prev) =>
+      setAllLeads((prev) =>
         prev.map((l) => (l.id === activeId ? { ...l, estado: overEstado } : l))
       )
     }
 
     // Si cayó sobre otro card
-    const overLead = leads.find((l) => l.id === overId)
+    const overLead = allLeads.find((l) => l.id === overId)
     if (overLead && overLead.estado !== activeLead.estado) {
-      setLeads((prev) =>
+      setAllLeads((prev) =>
         prev.map((l) => (l.id === activeId ? { ...l, estado: overLead.estado } : l))
       )
     }
@@ -120,7 +120,7 @@ export default function KanbanBoard({ onLeadClick, filterPais, filterProyecto, f
     if (!over) return
 
     const activeId = active.id as string
-    const lead = leads.find((l) => l.id === activeId)
+    const lead = allLeads.find((l) => l.id === activeId)
     if (!lead) return
 
     const originalLead = activeLead
