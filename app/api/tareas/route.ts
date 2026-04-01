@@ -22,6 +22,7 @@ export async function GET() {
       lead_nombre: t.leads?.nombre ?? 'Sin nombre',
       lead_estado: t.leads?.estado ?? 'prospecto',
       lead_propiedad: t.leads?.propiedad ?? '',
+      tipo: t.tipo,
       descripcion: t.descripcion,
       fecha_creacion: t.fecha,
       fecha_vencimiento: t.metadata?.fecha_vencimiento ?? null,

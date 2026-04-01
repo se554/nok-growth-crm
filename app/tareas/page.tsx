@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { RefreshCw, Clock } from 'lucide-react'
-import { format, isToday, isPast, isThisWeek, isFuture } from 'date-fns'
+import { format, isToday, isPast, isThisWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { clsx } from 'clsx'
-import { ESTADO_STYLES, ESTADOS_ORDEN } from '@/lib/types'
-import type { Estado } from '@/lib/types'
+import { ESTADO_STYLES, ESTADOS_ORDEN, EVENTO_ICONS, EVENTO_LABELS } from '@/lib/types'
+import type { Estado, TipoEvento } from '@/lib/types'
 
 interface Tarea {
   id: string
@@ -15,6 +15,7 @@ interface Tarea {
   lead_nombre: string
   lead_estado: string
   lead_propiedad: string
+  tipo: TipoEvento
   descripcion: string
   fecha_creacion: string
   fecha_vencimiento: string | null
@@ -32,11 +33,15 @@ function clasificar(t: Tarea): Grupo {
 }
 
 const GRUPOS: { key: Grupo; label: string; color: string; dot: string }[] = [
-  { key: 'vencida', label: 'Vencidas',      color: 'text-red-600',   dot: 'bg-red-500'   },
-  { key: 'hoy',     label: 'Hoy',           color: 'text-amber-600', dot: 'bg-amber-400' },
-  { key: 'semana',  label: 'Esta semana',   color: 'text-blue-600',  dot: 'bg-blue-400'  },
-  { key: 'proxima', label: 'Próximas',      color: 'text-green-600', dot: 'bg-green-400' },
-  { key: 'sin_fecha', label: 'Sin fecha',   color: 'text-[#6B6B6B]', dot: 'bg-gray-300'  },
+  { key: 'vencida',   label: 'Vencidas',     color: 'text-red-600',   dot: 'bg-red-500'   },
+  { key: 'hoy',       label: 'Hoy',          color: 'text-amber-600', dot: 'bg-amber-400' },
+  { key: 'semana',    label: 'Esta semana',  color: 'text-blue-600',  dot: 'bg-blue-400'  },
+  { key: 'proxima',   label: 'Próximas',     color: 'text-green-600', dot: 'bg-green-400' },
+  { key: 'sin_fecha', label: 'Sin fecha',    color: 'text-[#6B6B6B]', dot: 'bg-gray-300'  },
+]
+
+const TIPOS_CON_RECORDATORIO: TipoEvento[] = [
+  'llamada','whatsapp','email','reunion','propuesta_enviada','contrato','nota','tarea'
 ]
 
 function TareaCard({ tarea, onClick }: { tarea: Tarea; onClick: () => void }) {
@@ -55,7 +60,11 @@ function TareaCard({ tarea, onClick }: { tarea: Tarea; onClick: () => void }) {
       )}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-[13px]">{EVENTO_ICONS[tarea.tipo]}</span>
+            <span className="text-[11px] text-[#6B6B6B]">{EVENTO_LABELS[tarea.tipo]}</span>
+          </div>
           <p className="text-[13px] font-semibold text-[#1A1A1A] truncate">{tarea.lead_nombre}</p>
           {tarea.lead_propiedad && (
             <p className="text-[11px] text-[#6B6B6B] truncate">{tarea.lead_propiedad}</p>
@@ -71,19 +80,17 @@ function TareaCard({ tarea, onClick }: { tarea: Tarea; onClick: () => void }) {
       <div className="flex items-center gap-1.5">
         <Clock size={11} className={clsx(
           grupo === 'vencida' ? 'text-red-400' :
-          grupo === 'hoy'     ? 'text-amber-400' :
-          'text-[#6B6B6B]'
+          grupo === 'hoy'     ? 'text-amber-400' : 'text-[#6B6B6B]'
         )} />
         <span className={clsx(
           'text-[11px] font-medium',
           grupo === 'vencida' ? 'text-red-500' :
-          grupo === 'hoy'     ? 'text-amber-600' :
-          'text-[#6B6B6B]'
+          grupo === 'hoy'     ? 'text-amber-600' : 'text-[#6B6B6B]'
         )}>
           {!venc ? 'Sin fecha' :
-           grupo === 'hoy' ? 'Hoy' :
+           grupo === 'hoy'     ? 'Hoy' :
            grupo === 'vencida' ? `Venció ${format(venc, "d MMM", { locale: es })}` :
-           format(venc, "d MMM yyyy", { locale: es })}
+           format(venc, "d 'de' MMM yyyy", { locale: es })}
         </span>
       </div>
     </div>
@@ -95,6 +102,7 @@ export default function TareasPage() {
   const [tareas, setTareas] = useState<Tarea[]>([])
   const [loading, setLoading] = useState(true)
   const [filterEstado, setFilterEstado] = useState<Estado | ''>('')
+  const [filterTipo, setFilterTipo] = useState<TipoEvento | ''>('')
 
   const cargar = useCallback(() => {
     fetch('/api/tareas')
@@ -104,34 +112,38 @@ export default function TareasPage() {
 
   useEffect(() => { cargar() }, [cargar])
 
-  const filtered = filterEstado ? tareas.filter(t => t.lead_estado === filterEstado) : tareas
+  const filtered = tareas
+    .filter(t => filterEstado ? t.lead_estado === filterEstado : true)
+    .filter(t => filterTipo   ? t.tipo === filterTipo           : true)
 
   const grouped = GRUPOS.map(g => ({
     ...g,
     items: filtered.filter(t => clasificar(t) === g.key),
   })).filter(g => g.items.length > 0)
 
-  const totalPendientes = tareas.filter(t => {
-    const g = clasificar(t)
-    return g === 'vencida' || g === 'hoy'
+  const totalUrgentes = tareas.filter(t => {
+    const g = clasificar(t); return g === 'vencida' || g === 'hoy'
   }).length
 
-  // Conteo por estado para los botones de filtro
   const countByEstado = ESTADOS_ORDEN.reduce((acc, e) => {
     acc[e] = tareas.filter(t => t.lead_estado === e).length
     return acc
   }, {} as Record<string, number>)
 
+  const countByTipo = TIPOS_CON_RECORDATORIO.reduce((acc, t) => {
+    acc[t] = tareas.filter(r => r.tipo === t).length
+    return acc
+  }, {} as Record<string, number>)
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[18px] font-semibold text-[#1A1A1A]">Tareas</h1>
+          <h1 className="text-[18px] font-semibold text-[#1A1A1A]">Recordatorios</h1>
           <p className="text-[12px] text-[#6B6B6B]">
-            {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
-            {filterEstado ? ` en ${ESTADO_STYLES[filterEstado]?.label}` : ` en total`}
-            {totalPendientes > 0 && !filterEstado && (
-              <span className="ml-2 text-red-500 font-medium">· {totalPendientes} urgente{totalPendientes !== 1 ? 's' : ''}</span>
+            {filtered.length} recordatorio{filtered.length !== 1 ? 's' : ''}
+            {totalUrgentes > 0 && !filterEstado && !filterTipo && (
+              <span className="ml-2 text-red-500 font-medium">· {totalUrgentes} urgente{totalUrgentes !== 1 ? 's' : ''}</span>
             )}
           </p>
         </div>
@@ -141,35 +153,49 @@ export default function TareasPage() {
         </button>
       </div>
 
-      {/* Filtros por estado */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setFilterEstado('')}
-          className={clsx(
-            'text-[12px] px-3 py-1.5 rounded-full border transition-all',
-            filterEstado === ''
-              ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
-              : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#1A1A1A]'
-          )}
-        >
-          Todos · {tareas.length}
-        </button>
-        {ESTADOS_ORDEN.filter(e => countByEstado[e] > 0).map(e => {
-          const s = ESTADO_STYLES[e]
-          const active = filterEstado === e
-          return (
-            <button
-              key={e}
-              onClick={() => setFilterEstado(e)}
-              className={clsx(
-                'text-[12px] px-3 py-1.5 rounded-full border transition-all',
-                active ? `${s.bg} ${s.text} ${s.border} font-medium` : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#C9A84C]'
-              )}
-            >
-              {s.label} · {countByEstado[e]}
+      {/* Filtro por tipo de evento */}
+      <div>
+        <p className="text-[10px] font-semibold text-[#6B6B6B] uppercase tracking-wide mb-2">Tipo de actividad</p>
+        <div className="flex flex-wrap gap-1.5">
+          <button onClick={() => setFilterTipo('')}
+            className={clsx('text-[11px] px-2.5 py-1 rounded-full border transition-all',
+              filterTipo === '' ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]' : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#1A1A1A]'
+            )}>
+            Todos · {tareas.length}
+          </button>
+          {TIPOS_CON_RECORDATORIO.filter(t => countByTipo[t] > 0).map(t => (
+            <button key={t} onClick={() => setFilterTipo(t)}
+              className={clsx('flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border transition-all',
+                filterTipo === t ? 'bg-[#C9A84C] text-white border-[#C9A84C]' : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#C9A84C]'
+              )}>
+              {EVENTO_ICONS[t]} {EVENTO_LABELS[t]} · {countByTipo[t]}
             </button>
-          )
-        })}
+          ))}
+        </div>
+      </div>
+
+      {/* Filtro por estado del lead */}
+      <div>
+        <p className="text-[10px] font-semibold text-[#6B6B6B] uppercase tracking-wide mb-2">Estado del lead</p>
+        <div className="flex flex-wrap gap-1.5">
+          <button onClick={() => setFilterEstado('')}
+            className={clsx('text-[11px] px-2.5 py-1 rounded-full border transition-all',
+              filterEstado === '' ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]' : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#1A1A1A]'
+            )}>
+            Todos
+          </button>
+          {ESTADOS_ORDEN.filter(e => countByEstado[e] > 0).map(e => {
+            const s = ESTADO_STYLES[e]
+            return (
+              <button key={e} onClick={() => setFilterEstado(e)}
+                className={clsx('text-[11px] px-2.5 py-1 rounded-full border transition-all',
+                  filterEstado === e ? `${s.bg} ${s.text} ${s.border} font-medium` : 'border-[#E8E6E0] text-[#6B6B6B] hover:border-[#C9A84C]'
+                )}>
+                {s.label} · {countByEstado[e]}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {loading ? (
@@ -184,7 +210,7 @@ export default function TareasPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-[13px] text-[#6B6B6B]">
-          {filterEstado ? `No hay tareas en estado ${ESTADO_STYLES[filterEstado]?.label}.` : 'No hay tareas registradas.'}
+          No hay recordatorios con los filtros seleccionados.
         </div>
       ) : (
         <div className="space-y-8">
@@ -192,20 +218,13 @@ export default function TareasPage() {
             <div key={g.key}>
               <div className="flex items-center gap-2 mb-3">
                 <div className={clsx('w-2 h-2 rounded-full', g.dot)} />
-                <p className={clsx('text-[12px] font-semibold uppercase tracking-wide', g.color)}>
-                  {g.label}
-                </p>
-                <span className="text-[11px] text-[#6B6B6B] bg-[#F5F3EE] px-2 py-0.5 rounded-full">
-                  {g.items.length}
-                </span>
+                <p className={clsx('text-[12px] font-semibold uppercase tracking-wide', g.color)}>{g.label}</p>
+                <span className="text-[11px] text-[#6B6B6B] bg-[#F5F3EE] px-2 py-0.5 rounded-full">{g.items.length}</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {g.items.map(t => (
-                  <TareaCard
-                    key={t.id}
-                    tarea={t}
-                    onClick={() => router.push(`/pipeline?lead=${t.lead_id}`)}
-                  />
+                  <TareaCard key={t.id} tarea={t}
+                    onClick={() => router.push(`/pipeline?lead=${t.lead_id}`)} />
                 ))}
               </div>
             </div>
