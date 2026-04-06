@@ -37,6 +37,8 @@ export default function EventoForm({ leadId, onEventoAdded }: Props) {
     setFechaRecordatorio('')
     setLoading(false)
     onEventoAdded()
+    // Notificar al sidebar para que actualice pendientes
+    window.dispatchEvent(new Event('tareas-updated'))
   }
 
   return (

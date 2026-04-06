@@ -166,6 +166,8 @@ export default function TareasPage() {
       body: JSON.stringify({ completado: !completado }),
     })
     setToggling(prev => { const n = new Set(prev); n.delete(id); return n })
+    // Notificar al sidebar para que actualice pendientes
+    window.dispatchEvent(new Event('tareas-updated'))
   }
 
   const pendientes = tareas.filter(t => !t.completado)

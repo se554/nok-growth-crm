@@ -54,8 +54,16 @@ export default function Sidebar() {
 
   useEffect(() => {
     cargarTareas()
-    const interval = setInterval(cargarTareas, 30000)
-    return () => clearInterval(interval)
+    const interval = setInterval(cargarTareas, 60000)
+
+    // Escuchar cuando se completa/descompleta una tarea desde la página de tareas
+    const handleTareaUpdate = () => cargarTareas()
+    window.addEventListener('tareas-updated', handleTareaUpdate)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('tareas-updated', handleTareaUpdate)
+    }
   }, [pathname])
 
   const handleLogout = async () => {
@@ -96,9 +104,8 @@ export default function Sidebar() {
 
       {/* Logo */}
       <div className="px-6 pt-7 pb-5 shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="font-serif text-[32px] font-light tracking-tight leading-none" style={{ color: 'var(--text-primary)' }}>
-          NOK
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/nok_blanco.png" alt="NOK" style={{ width: '100px', height: 'auto' }} />
         <div className="text-[9px] font-semibold tracking-[0.22em] uppercase mt-1.5"
           style={{ color: 'var(--gold)' }}>
           Growth CRM
