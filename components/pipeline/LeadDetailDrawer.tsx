@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Phone, Mail, MessageCircle, ChevronRight, Building2, Pencil, Paperclip, Upload } from 'lucide-react'
+import { X, Phone, Mail, MessageCircle, ChevronRight, Building2, Pencil, Paperclip, Upload, Trash2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { LeadConActividad, LeadDetalle, Estado } from '@/lib/types'
 import { ESTADO_STYLES, ESTADOS_ORDEN, TIPO_PROPIEDAD_LABELS, TIPOLOGIA_LABELS, ZONAS } from '@/lib/types'
@@ -102,6 +102,7 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormState>(buildForm(lead))
   const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const setF = (field: keyof FormState, value: string | boolean) =>
@@ -174,6 +175,15 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
     await fetch(`/api/leads/${lead.id}/documentos`, { method: 'POST', body: fd })
     setUploading(false)
     fetchDetalle()
+  }
+
+  const eliminarLead = async () => {
+    if (!confirm(`¿Eliminar "${lead.nombre}" del pipeline?\n\nEsto eliminará el lead y toda su hoja de vida. Esta acción no se puede deshacer.`)) return
+    if (!confirm('¿Estás seguro? Esta acción es permanente.')) return
+    setDeleting(true)
+    await fetch(`/api/leads/${lead.id}`, { method: 'DELETE' })
+    setDeleting(false)
+    onUpdated()
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -267,6 +277,14 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                 Marcar perdido
               </button>
             )}
+            <button onClick={eliminarLead} disabled={deleting}
+              className="flex items-center gap-1 text-[12px] px-3 py-1.5 rounded-lg disabled:opacity-50 transition-all ml-auto"
+              style={{ color: '#f87171', border: '1px solid rgba(242,0,34,0.25)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(242,0,34,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <Trash2 size={12} />
+              {deleting ? 'Eliminando...' : 'Eliminar'}
+            </button>
           </div>
         </div>
 

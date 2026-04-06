@@ -49,3 +49,21 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
+
+// DELETE /api/leads/[id] — eliminar lead y todos sus eventos
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  // Primero eliminar eventos asociados
+  await supabaseAdmin
+    .from('lead_eventos')
+    .delete()
+    .eq('lead_id', params.id)
+
+  // Luego eliminar el lead
+  const { error } = await supabaseAdmin
+    .from('leads')
+    .delete()
+    .eq('id', params.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
