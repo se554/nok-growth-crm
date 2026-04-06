@@ -17,7 +17,7 @@ export async function GET() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const todos = (data ?? [])
-    .filter((t: any) => !!t.metadata?.fecha_vencimiento)
+    .filter((t: any) => !!t.metadata?.fecha_vencimiento && !t.metadata?.completado)
     .sort((a: any, b: any) => {
       const fa = a.metadata?.fecha_vencimiento ?? ''
       const fb = b.metadata?.fecha_vencimiento ?? ''

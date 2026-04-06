@@ -26,6 +26,8 @@ export async function GET() {
       descripcion: t.descripcion,
       fecha_creacion: t.fecha,
       fecha_vencimiento: t.metadata?.fecha_vencimiento ?? null,
+      completado: !!t.metadata?.completado,
+      completado_en: t.metadata?.completado_en ?? null,
     }))
 
   return NextResponse.json(tareas)
