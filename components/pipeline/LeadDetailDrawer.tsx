@@ -177,6 +177,17 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
     fetchDetalle()
   }
 
+  const toggleUrgente = async () => {
+    const nuevaPrioridad = (detalle ?? lead).prioridad === 'alta' ? 'na' : 'alta'
+    await fetch(`/api/leads/${lead.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prioridad: nuevaPrioridad }),
+    })
+    fetchDetalle()
+    onUpdated()
+  }
+
   const eliminarLead = async () => {
     if (!confirm(`¿Eliminar "${lead.nombre}" del pipeline?\n\nEsto eliminará el lead y toda su hoja de vida. Esta acción no se puede deshacer.`)) return
     if (!confirm('¿Estás seguro? Esta acción es permanente.')) return
@@ -266,6 +277,17 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdated }: Props) {
                 className="flex items-center gap-1 text-[12px] px-3 py-1.5 rounded-lg disabled:opacity-50 transition-all"
                 style={{ background: 'var(--gold)', color: '#1D1D1B' }}>
                 Mover a {ESTADO_STYLES[next]?.label} <ChevronRight size={13} />
+              </button>
+            )}
+            {lead.estado !== 'perdido' && lead.estado !== 'cerrado' && (
+              <button onClick={toggleUrgente}
+                className="text-[12px] px-3 py-1.5 rounded-lg transition-all"
+                style={{
+                  color: d.prioridad === 'alta' ? '#f87171' : 'var(--text-muted)',
+                  border: `1px solid ${d.prioridad === 'alta' ? 'rgba(242,0,34,0.45)' : 'var(--border-mid)'}`,
+                  background: d.prioridad === 'alta' ? 'rgba(242,0,34,0.1)' : 'transparent',
+                }}>
+                {d.prioridad === 'alta' ? '🔥 Urgente' : 'Marcar urgente'}
               </button>
             )}
             {lead.estado !== 'perdido' && lead.estado !== 'cerrado' && (

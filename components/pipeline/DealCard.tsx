@@ -23,7 +23,8 @@ export default function DealCard({ lead, onClick }: Props) {
   }
 
   const dias = lead.dias_sin_contacto ?? 0
-  const esUrgente = dias >= 14 && lead.estado !== 'cerrado' && lead.estado !== 'perdido'
+  const marcadoUrgente = lead.prioridad === 'alta'
+  const esUrgente = (marcadoUrgente || dias >= 14) && lead.estado !== 'cerrado' && lead.estado !== 'perdido'
   const esAtrasado = dias >= 7 && !esUrgente && lead.estado !== 'cerrado' && lead.estado !== 'perdido'
 
   return (
@@ -61,9 +62,6 @@ export default function DealCard({ lead, onClick }: Props) {
             <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{lead.propiedad}</p>
           )}
         </div>
-        {lead.prioridad === 'alta' && (
-          <div className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: 'var(--danger)' }} />
-        )}
       </div>
 
       {/* Pendientes */}
