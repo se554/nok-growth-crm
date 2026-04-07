@@ -152,7 +152,18 @@ export default function TareasPage() {
       .then(data => { if (Array.isArray(data)) setTareas(data); setLoading(false) })
   }, [])
 
-  useEffect(() => { cargar() }, [cargar])
+  useEffect(() => {
+    cargar()
+    const interval = setInterval(cargar, 15000)
+    const handler = () => cargar()
+    window.addEventListener('tareas-updated', handler)
+    window.addEventListener('focus', handler)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('tareas-updated', handler)
+      window.removeEventListener('focus', handler)
+    }
+  }, [cargar])
 
   const toggleTarea = async (id: string, completado: boolean) => {
     setToggling(prev => new Set(prev).add(id))
