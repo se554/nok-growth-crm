@@ -17,7 +17,7 @@ export const chatTools: Anthropic.Tool[] = [
       properties: {
         estado: {
           type: 'string',
-          enum: ['prospecto', 'pendiente_contacto', 'contactado', 'pendiente_respuesta', 'en_espera', 'pendiente_reunion', 'cotizacion', 'comprometido', 'cerrado', 'perdido'],
+          enum: ['prospecto', 'urgente', 'pendiente_contacto', 'contactado', 'pendiente_respuesta', 'en_espera', 'pendiente_reunion', 'cotizacion', 'comprometido', 'cerrado', 'perdido'],
           description: 'Filtrar por estado',
         },
         dias_sin_contacto_min: {
@@ -71,7 +71,7 @@ export const chatTools: Anthropic.Tool[] = [
         },
         nuevo_estado: {
           type: 'string',
-          enum: ['prospecto', 'pendiente_contacto', 'contactado', 'pendiente_respuesta', 'en_espera', 'pendiente_reunion', 'cotizacion', 'comprometido', 'cerrado', 'perdido'],
+          enum: ['prospecto', 'urgente', 'pendiente_contacto', 'contactado', 'pendiente_respuesta', 'en_espera', 'pendiente_reunion', 'cotizacion', 'comprometido', 'cerrado', 'perdido'],
         },
         nota: {
           type: 'string',

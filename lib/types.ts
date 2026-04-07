@@ -1,5 +1,6 @@
 export type Estado =
   | 'prospecto'
+  | 'urgente'
   | 'cotizacion'
   | 'comprometido'
   | 'cerrado'
@@ -126,6 +127,7 @@ export const TIPOLOGIA_LABELS: Record<Tipologia, string> = {
 
 export const ESTADO_STYLES: Record<string, { bg: string; text: string; border: string; label: string }> = {
   prospecto:           { bg: 'bg-gray-100',    text: 'text-gray-700',    border: 'border-gray-300',    label: 'Prospecto'    },
+  urgente:             { bg: 'bg-red-50',      text: 'text-red-700',     border: 'border-red-300',     label: '🔥 Urgente'   },
   cotizacion:          { bg: 'bg-purple-50',   text: 'text-purple-700',  border: 'border-purple-200',  label: 'Cotización'   },
   comprometido:        { bg: 'bg-amber-50',    text: 'text-amber-700',   border: 'border-amber-200',   label: 'Comprometido' },
   cerrado:             { bg: 'bg-green-50',    text: 'text-green-700',   border: 'border-green-300',   label: 'Cerrado'      },
@@ -148,6 +150,7 @@ export function getEstadoStyle(estado: string) {
 
 export const ESTADOS_ORDEN: Estado[] = [
   'prospecto',
+  'urgente',
   'cotizacion',
   'comprometido',
   'cerrado',
