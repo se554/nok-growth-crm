@@ -1,6 +1,5 @@
 export type Estado =
   | 'prospecto'
-  | 'urgente'
   | 'cotizacion'
   | 'comprometido'
   | 'cerrado'
@@ -150,7 +149,6 @@ export function getEstadoStyle(estado: string) {
 
 export const ESTADOS_ORDEN: Estado[] = [
   'prospecto',
-  'urgente',
   'cotizacion',
   'comprometido',
   'cerrado',
