@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // GET /api/tareas — todas las tareas (tipo='tarea' O cualquier evento con fecha_vencimiento)
 export async function GET() {
   const { data, error } = await supabaseAdmin

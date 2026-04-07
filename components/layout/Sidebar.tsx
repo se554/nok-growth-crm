@@ -43,7 +43,7 @@ export default function Sidebar() {
   }, [])
 
   const cargarTareas = () => {
-    fetch('/api/tareas/pendientes')
+    fetch('/api/tareas/pendientes', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => {
         if (data?.urgentes) setUrgentes(data.urgentes)

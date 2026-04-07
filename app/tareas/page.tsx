@@ -147,7 +147,7 @@ export default function TareasPage() {
   const [toggling, setToggling] = useState<Set<string>>(new Set())
 
   const cargar = useCallback(() => {
-    fetch('/api/tareas')
+    fetch('/api/tareas', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setTareas(data); setLoading(false) })
   }, [])

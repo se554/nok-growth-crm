@@ -50,7 +50,7 @@ export default function LoginPage() {
         <div className="px-8 pt-8 pb-6 flex flex-col items-center"
           style={{ background: 'var(--surface-el)', borderBottom: '1px solid var(--border)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/nok_negro.png" alt="NOK" style={{ width: '140px', height: 'auto', filter: 'brightness(0) invert(1)' }} />
+          <img src="/nok_blanco.png" alt="NOK" style={{ width: '140px', height: 'auto' }} />
           <p className="text-[9px] font-semibold tracking-[0.25em] uppercase mt-2"
             style={{ color: 'var(--gold)' }}>
             Growth CRM
